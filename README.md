@@ -1,10 +1,10 @@
-# pico-w-tank-level-monitor
+## PicoW Tank Level Monitor
 
-# PicoW project - uses a 4-20mA level sensor to monitor water tank level.
+### PicoW project - uses a 4-20mA level sensor to monitor water tank level.
 
-# Provides a web interface and supports MQTT publish and
+### Provides a web interface and supports MQTT publish
 
-# TODO
+#### TODO
 
 Deinit LWIP resources before reboot
 Checksumm on settings
