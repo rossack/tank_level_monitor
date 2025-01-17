@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tank Monitor</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <h1>Configuration</h1>
+    <div class="form-section">
+      <form action="/config_submit" method="POST">
+        <!-- WiFi Access Point Configuration -->
+        <h2>WiFi Access Point</h2>
+        <div class="container">
+          <label for="ssid">SSID:</label>
+          <input type="text" maxlength="16" id="ssid" name="ssid" />
+          <label for="pwd">Password:</label>
+          <div class="password-field">
+            <input type="password" maxlength="16" id="pwd" name="pwd" />
+            <button type="button" id="toggle-pwd">Show</button>
+          </div>
+        </div>
+        <hr />
+
+        <!-- MQTT Broker Configuration -->
+        <h2>MQTT Broker</h2>
+        <label>
+          Enable MQTT
+          <input type="checkbox" id="mqtt_enable" onclick="mqttEnable(this)" />
+        </label>
+        <div id="toggleDiv">
+          <div class="container">
+            <label for="mqHost">Server Address:</label>
+            <input type="text" maxlength="32" id="mqHost" name="mqHost" />
+            <label for="mqPort">Port:</label>
+            <input type="number" id="mqPort" name="mqPort" />
+            <label for="mqUser">Username:</label>
+            <input type="text" maxlength="16" id="mqUser" name="mqUser" />
+            <label for="mqPwd">Password:</label>
+            <input type="password" maxlength="16" id="mqPwd" name="mqPwd" />
+            <button type="button" id="toggle-mqPwd">Show</button>
+            <label for="mqPubInt">Publish Interval (sec):</label>
+            <input type="number" id="mqPubInt" name="mqPubInt" />
+
+            <label for="mqStateTopic">State Topic:</label>
+            <input
+              type="text"
+              maxlength="32"
+              id="mqStateTopic"
+              name="mqStateTopic"
+            />
+            <label for="mqSensTopic">Sensor Topic</label>
+            <input
+              type="text"
+              maxlength="32"
+              id="mqSensTopic"
+              name="mqSensTopic"
+            />
+            <label for="mqConfTopic">Config Topic:</label>
+            <input
+              type="text"
+              maxlength="32"
+              id="mqConfTopic"
+              name="mqConfTopic"
+            />
+          </div>
+        </div>
+        <hr />
+        <label>
+          Factory Reset
+          <input
+            type="checkbox"
+            id="initConfig"
+            name="initConfig"
+            value="1"
+            onclick="showAlert(this)"
+          />
+        </label>
+        <hr />
+        <br /><br />
+        <!-- Submit Button -->
+        <button type="submit" id="submit-button">Save</button>
+        <button type="button" onclick="handleCancel()">Cancel</button>
+      </form>
+    </div>
+
+    <script>
+      // Fetch data and update form fields
+      //document.getElementById("fetchDataBtn").addEventListener("click", () => { } );
+
+      // Fill in the form fields
+      // Fetch request
+      fetch("/get_config.shtml")
+        .then((response) => {
+          // Check if response is successful
+          if (!response.ok) {
+            throw new Error("Network Error: " + response.statusText);
+          }
+          return response.json(); // Parse JSON response
+        })
+        .then((data) => {
+          console.log("JSON Data:", data);
+          // Update form fields
+          document.getElementById("ssid").value = data.ssid;
+          document.getElementById("pwd").value = data.pwd;
+          document.getElementById("mqUser").value = data.mqUser;
+          document.getElementById("mqPwd").value = data.mqPwd;
+          document.getElementById("mqStateTopic").value = data.mqStateTopic;
+          document.getElementById("mqSensTopic").value = data.mqSensTopic;
+          document.getElementById("mqConfTopic").value = data.mqConfTopic;
+          document.getElementById("mqPort").value = data.mqPort;
+          document.getElementById("mqHost").value = data.mqHost;
+          document.getElementById("mqPubInt").value = data.mqPubInt;
+          if (data.mqPubInt > 0) {
+            // the value of the Publish interval is used enable/disable MQTT
+            document.getElementById("mqtt_enable").checked = true;
+            document.getElementById("toggleDiv").style.display = "block";
+          }
+        })
+        .catch((error) => {
+          console.error("Fetch Error:", error);
+          alert("Failed to fetch data. Check console for details.");
+        });
+
+      const passwordInput = document.getElementById("pwd");
+      const togglePasswordButton = document.getElementById("toggle-pwd");
+      togglePasswordButton.addEventListener("click", () => {
+        const isPassword = passwordInput.type === "password";
+        passwordInput.type = isPassword ? "text" : "password";
+        togglePasswordButton.textContent = isPassword ? "Hide" : "Show";
+      });
+      const mqPasswordInput = document.getElementById("mqPwd");
+      const toggleMqPasswordButton = document.getElementById("toggle-mqPwd");
+      toggleMqPasswordButton.addEventListener("click", () => {
+        const isPassword = mqPasswordInput.type === "password";
+        mqPasswordInput.type = isPassword ? "text" : "password";
+        toggleMqPasswordButton.textContent = isPassword ? "Hide" : "Show";
+      });
+
+      function handleCancel() {
+        // Clears the form fields
+        //document.querySelector('form').reset();
+
+        // Redirect to home page
+        window.location.href = "/index.html";
+      }
+
+      function showAlert(checkbox) {
+        if (checkbox.checked) {
+          alert("Factory Reset will restart in WiFi AP mode on Save");
+        }
+      }
+
+      function mqttEnable(checkbox) {
+        const div = document.getElementById("toggleDiv");
+        div.style.display = checkbox.checked ? "block" : "none";
+      }
+    </script>
+  </body>
+</html>

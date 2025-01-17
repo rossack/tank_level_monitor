@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    Status
+    <pre>
+      <div id="status"></div>
+    </pre>
+    Sensor
+    <pre>
+      <div id="sensor"></div>
+    </pre>
+    MQTT
+    <pre>   
+    <div id="mqtt"></div>
+  </pre>
+
+    <script>
+      async function fetchJsonObject(url) {
+        try {
+          const response = await fetch(url);
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const data = await response.json();
+          return data;
+        } catch (error) {
+          console.error("Error fetching JSON object:", error);
+          throw error; // Rethrow the error so the caller can handle it
+        }
+      }
+      (async () => {
+        try {
+          const data = await fetchJsonObject("/get_status.shtml");
+          console.log("Fetched JSON object:", data);
+          document.getElementById("status").textContent = JSON.stringify(
+            data,
+            null,
+            2
+          );
+        } catch (error) {
+          console.error("Error:", error.message);
+        }
+      })();
+      (async () => {
+        try {
+          const data = await fetchJsonObject("/get_sensor.shtml");
+          console.log("Fetched JSON object:", data);
+          document.getElementById("sensor").textContent = JSON.stringify(
+            data,
+            null,
+            2
+          );
+        } catch (error) {
+          console.error("Error:", error.message);
+        }
+      })();
+      (async () => {
+        try {
+          const data = await fetchJsonObject("/get_mqtt.shtml");
+          console.log("Fetched JSON object:", data);
+          document.getElementById("mqtt").textContent = JSON.stringify(
+            data,
+            null,
+            2
+          );
+        } catch (error) {
+          console.error("Error:", error.message);
+        }
+      })();
+    </script>
+  </body>
+</html>

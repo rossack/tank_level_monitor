@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tank Monitor</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="raphael.min.js"></script>
+    <script src="justgage.js"></script>
+  </head>
+  <body>
+    <h1>Tank Monitor</h1>
+    <div id="gauge" style="width: 400px; height: 320px"></div>
+
+    <script>
+      var g1 = new JustGage({
+        id: "gauge",
+        value: 0,
+        min: 0,
+        max: 100,
+        title: "Level",
+        label: "% Full",
+      });
+
+      setInterval(gTimer, 2000);
+
+      function gTimer() {
+        fetch("/get_sensor.shtml")
+          .then(function (response) {
+            // The API call was successful!
+            return response.json();
+          })
+          .then(function (data) {
+            // This is the JSON from our response
+            console.log(data);
+            g1.refresh((data.ADC / 4096) * 100);
+          })
+          .catch(function (err) {
+            // There was an error
+            console.warn("Fetch error:", err);
+          });
+      }
+    </script>
+    <hr />
+    <p>
+      <a href="/config.html"><button>Configure</button></a>
+      <a href="/status.html"><button>Status</button></a>
+    </p>
+  </body>
+</html>
