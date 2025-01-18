@@ -58,14 +58,14 @@ void buttonEvent(Event e) {
 
     // Set static IP for the AP
     ip4_addr_t ipaddr, netmask, gateway;
-    /*
     ip4addr_aton(AP_IP_ADDR, &ipaddr);
     ip4addr_aton(AP_NETMASK, &netmask);
     ip4addr_aton(AP_GATEWAY, &gateway);
-*/
+    /*
     IP4_ADDR(&ipaddr, 192, 168, 4, 1);  // AP IP address
     IP4_ADDR(&netmask, 255, 255, 255, 0); // Subnet mask
     IP4_ADDR(&gateway, 192, 168, 4, 1);        // Gateway
+    */
 
     struct netif *netif;
     // Iterate over netif interfaces
@@ -112,6 +112,9 @@ int main() {
     gpio_set_irq_enabled_with_callback(MPB_PIN, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, &extInterrupt);
     
     cyw43_arch_init_with_country(CYW43_COUNTRY_AUSTRALIA); // cyw43_arch_init();
+    bool ap_mode = false;
+    bool sta_mode_led = false;
+
     // Read Flash memory settings
     if (settings_init()) {
         cyw43_arch_enable_sta_mode();
@@ -128,6 +131,7 @@ int main() {
     } else {
         // If no settings available boot into AP mode
        setup_ap_mode();
+       ap_mode = true;
     }
 
     // Initialise web server, and MQTT client
@@ -137,7 +141,6 @@ int main() {
     }
     absolute_time_t set_time = get_absolute_time();
     int publish_timer = get_settings()->mqtt_pint;
-    bool led_state = false;
 
     while(true) {
         sys_check_timeouts();
@@ -150,7 +153,8 @@ int main() {
                     mqtt_update();
                 } else publish_timer -=1;
             }
-            if (led_state = !led_state) onLED(); else offLED(); // toggle the led
+            if (ap_mode) flashLED(1); // flash LED in AP mode
+            else if (sta_mode_led = !sta_mode_led) onLED(); else offLED(); // toggle LED in STA mode
             set_time = get_absolute_time();
         }
 
