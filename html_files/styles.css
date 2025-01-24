@@ -51,3 +51,16 @@ button:disabled {
 #toggleDiv {
   display: none; /* Default state dont show */
 }
+
+.status-line {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 12px;
+  background-color: #f4f4f4;
+  border: 1px solid #ccc;
+  padding: 5px;
+  display: inline-block;
+  width: 300px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

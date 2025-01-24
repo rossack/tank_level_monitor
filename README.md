@@ -13,6 +13,7 @@
 Deinit LWIP resources before reboot
 Checksumm on settings
 OTA updates
+Watchdog timer
 
 #### Bug List
 

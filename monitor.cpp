@@ -153,8 +153,16 @@ int main() {
                     mqtt_update();
                 } else publish_timer -=1;
             }
-            if (ap_mode) flashLED(1); // flash LED in AP mode
-            else if (sta_mode_led = !sta_mode_led) onLED(); else offLED(); // toggle LED in STA mode
+            if (ap_mode) flashLED(2); // flash LED in AP mode
+            else {
+                if (sta_mode_led = !sta_mode_led) onLED(); else offLED(); // toggle LED in STA mode
+                int status = cyw43_wifi_link_status(&cyw43_state, CYW43_ITF_STA);
+                if (status != CYW43_LINK_JOIN) {
+                    DEBUG_printf("WiFi is disconnected.\n");
+                    cyw43_arch_deinit();
+                    watchdog_reboot(0, 0, 0); // start over
+                }
+            }
             set_time = get_absolute_time();
         }
 

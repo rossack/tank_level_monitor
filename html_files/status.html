@@ -1,19 +1,26 @@
 <!DOCTYPE html>
 <html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tank Status</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="raphael.min.js"></script>
+    <script src="justgage.js"></script>
+  </head>
   <body>
-    Status
+    <h2>Status</h2>
     <pre>
       <div id="status"></div>
     </pre>
-    Sensor
+    <h2>Sensor</h2>
     <pre>
       <div id="sensor"></div>
     </pre>
-    MQTT
+    <h2>MQTT</h2>
     <pre>   
     <div id="mqtt"></div>
   </pre>
-
     <script>
       async function fetchJsonObject(url) {
         try {
@@ -43,19 +50,6 @@
       })();
       (async () => {
         try {
-          const data = await fetchJsonObject("/get_sensor.shtml");
-          console.log("Fetched JSON object:", data);
-          document.getElementById("sensor").textContent = JSON.stringify(
-            data,
-            null,
-            2
-          );
-        } catch (error) {
-          console.error("Error:", error.message);
-        }
-      })();
-      (async () => {
-        try {
           const data = await fetchJsonObject("/get_mqtt.shtml");
           console.log("Fetched JSON object:", data);
           document.getElementById("mqtt").textContent = JSON.stringify(
@@ -67,6 +61,29 @@
           console.error("Error:", error.message);
         }
       })();
+
+      setInterval(gTimer, 2000);
+
+      function gTimer() {
+        fetch("/get_sensor.shtml")
+          .then(function (response) {
+            // The API call was successful!
+            return response.json();
+          })
+          .then(function (data) {
+            // This is the JSON from our response
+            console.log(data);
+            document.getElementById("sensor").textContent = JSON.stringify(
+              data,
+              null,
+              2
+            );
+          })
+          .catch(function (err) {
+            // There was an error
+            console.warn("Fetch error:", err);
+          });
+      }
     </script>
   </body>
 </html>
