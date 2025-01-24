@@ -14,11 +14,13 @@
     <script>
       var g1 = new JustGage({
         id: "gauge",
-        value: 0,
+        value: 99,
         min: 0,
         max: 100,
         title: "Level",
         label: "% Full",
+        levelColors: ["#fc031c", "#bafc03", "#0373fc"],
+        counter: true,
       });
 
       setInterval(gTimer, 2000);

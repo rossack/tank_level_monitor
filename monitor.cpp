@@ -141,10 +141,14 @@ int main() {
     }
     absolute_time_t set_time = get_absolute_time();
     int publish_timer = get_settings()->mqtt_pint;
-
+    watchdog_enable(2000, true);
+    //
+    // Idle loop
+    //
     while(true) {
         sys_check_timeouts();
         cyw43_arch_poll();
+        watchdog_update();
 
         if (to_ms_since_boot(get_absolute_time()) - to_ms_since_boot(set_time) > 1000) {
             if (publish_timer > 0) {
