@@ -45,13 +45,13 @@ add_definitions(-DBUILD_VERSION="${BUILD_VERSION}")
 add_definitions(-DPICO_CYW43_ARCH_POLL)
 add_definitions(-DDEBUG_BUILD)
 
-# Add executable. Default name is the project name, version 0.1
+# Add executable. Default name is the project name
 
 add_executable(${PROGRAM_NAME}
     monitor.cpp
 )
 pico_set_program_name(${PROGRAM_NAME} "tank_level_monitor")
-pico_set_program_version(${PROGRAM_NAME} "0.1")
+pico_set_program_version(${PROGRAM_NAME} "0.1.1")
 
 
 
@@ -70,13 +70,14 @@ target_sources(${PROGRAM_NAME} PRIVATE
     utils.c
     button.cpp
     settings.c
+    wifi.cpp
     httpserver/httpserver.c
     dhcpserver/dhcpserver.c
 )
 
 
 target_link_libraries(${PROGRAM_NAME}
-    pico_stdlib    
+    pico_stdlib
     #pico_cyw43_arch_lwip_threadsafe_background
     pico_cyw43_arch_lwip_poll
     pico_lwip_mqtt

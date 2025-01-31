@@ -36,20 +36,20 @@ uint get_sensor_json(char *sbuf, uint sz) {
     /* 12 bit converter 0 to 4095 0x0fff */
     const float conversion_factor = 3.3f / (1 << 12);
     uint16_t raw = adc_read();
-    snprintf(sbuf, sz, "{\"ADC\": %u, \"Hex\": \"%04x\", \"Voltage\": %.3f}", 
+    snprintf(sbuf, sz, "{\"ADC\": %u, \"Hex\": \"%04x\", \"Voltage\": %.3f}",
     raw, raw, (float)raw * conversion_factor);
     return strlen(sbuf);
 }
- 
+
 uint get_status_json(char *sbuf, uint sz) {
-    int32_t rssi;	
+    int32_t rssi;
     cyw43_wifi_get_rssi(&cyw43_state, &rssi);
     uint8_t mac_address[6];
     cyw43_wifi_get_mac(&cyw43_state, CYW43_ITF_AP, mac_address);
-    struct netif *myNetif = netif_default; 
+    struct netif *myNetif = netif_default;
     ip_addr_t ipaddr = myNetif->ip_addr;
 
-    snprintf(sbuf, sz, 
+    snprintf(sbuf, sz,
     "{\"Version\": \"%s\","
     "\"Temp\": %.1f,"
     "\"UptimeSec\": %u,"
@@ -70,7 +70,7 @@ uint get_status_json(char *sbuf, uint sz) {
 
 
 
-float read_onboard_temperature() {  
+float read_onboard_temperature() {
     adc_select_input(4);
     /* 12-bit conversion, assume max value == ADC_VREF == 3.3 V */
     const float conversionFactor = 3.3f / (1 << 12);
@@ -88,10 +88,10 @@ void flashLED(int n) {
         //
         cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
         gpio_put(LED_PIN, 1);
-        sleep_ms(200);
+        sleep_ms(100);
         cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0);
-        gpio_put(LED_PIN, 0); 
-        if (++i < n) sleep_ms(200); //no need to sleep on last flash
+        gpio_put(LED_PIN, 0);
+        if (++i < n) sleep_ms(100); //no need to sleep on last flash
     }
 }
 
