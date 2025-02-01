@@ -1,18 +1,12 @@
 #include <stdio.h>
 #include <stdarg.h>
-#include "hardware/gpio.h"
-#include "hardware/adc.h"
-#include "hardware/watchdog.h"
 #include "pico/stdlib.h"
 #include "pico/cyw43_arch.h"
 #include "pico/binary_info.h"
-#include "lwip/tcpip.h"
-#include "lwip/ip_addr.h"
-#include "lwip/netif.h"
-#include "lwip/dhcp.h"
+#include "hardware/gpio.h"
+#include "hardware/adc.h"
+#include "hardware/watchdog.h"
 #include "lwip/timeouts.h"
-
-#include "lwipopts.h"
 
 #include "mqtt_client.h"
 #include "httpserver/httpserver.h"
@@ -27,9 +21,9 @@
 #define MPB_PIN 13 // GPIO pin to Momentary Push Button
 #define ADC_PIN 26 // ADC0 GPIO pin
 
+volatile bool bailout = false;
 MPButton mpButton; // Momentary Push button
 WifiConn wifi; // WiFi connection
-volatile bool bailout = false;
 
 void extInterrupt(uint gpio, uint32_t hw_e) {
     if (gpio == MPB_PIN) {
@@ -52,8 +46,6 @@ void buttonEvent(Event e) {
     }
 }
 
-
-
 int main() {
     stdio_init_all();
 
@@ -69,17 +61,18 @@ int main() {
     adc_gpio_init(ADC_PIN); // Set GPIO26 (channel 0) high-impedance for analog input
     gpio_init(LED_PIN);
     gpio_set_dir(LED_PIN, GPIO_OUT);
+
+    // Setup the button handler
     mpButton.gpioSetup(MPB_PIN);
     mpButton.eventHandler(&buttonEvent);
     gpio_set_irq_enabled_with_callback(MPB_PIN, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, &extInterrupt);
 
-    // wifi.init();
-    cyw43_arch_init_with_country(CYW43_COUNTRY_AUSTRALIA); // cyw43_arch_init()
-    bool status_led = false;
+    // Initialise wifi and depending on settings start STA or AP modes
+    wifi.init(CYW43_COUNTRY_AUSTRALIA);
 
     // Read Flash memory settings
     if (settings_init()) {
-        onLED();
+        onLED(); // this must not be called before cyw43 init()
         wifi.start(WIFI_STA, &bailout);
         offLED();
     } else {
@@ -87,14 +80,19 @@ int main() {
         wifi.start(WIFI_AP, &bailout);
     }
 
-    // Initialise web server, and MQTT client
+    // Start web server
     http_server_init();
-    if (get_settings()->mqtt_pint > 0) {
+
+    // Start MQTT if needed
+    int publish_timer = get_settings()->mqtt_pint;
+    if (publish_timer > 0) {
         mqtt_client_init(); // only start mqtt if the pub interval non zero
     }
+
+    // Init idle settings
     absolute_time_t set_time = get_absolute_time();
-    int publish_timer = get_settings()->mqtt_pint;
     watchdog_enable(2000, true);
+    bool status_led = false;
     //
     // Idle loop
     //

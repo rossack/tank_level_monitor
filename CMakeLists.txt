@@ -51,8 +51,7 @@ add_executable(${PROGRAM_NAME}
     monitor.cpp
 )
 pico_set_program_name(${PROGRAM_NAME} "tank_level_monitor")
-pico_set_program_version(${PROGRAM_NAME} "0.1.1")
-
+pico_set_program_version(${PROGRAM_NAME} "0.1.2")
 
 
 # Add the standard include files to the build
@@ -87,9 +86,11 @@ target_link_libraries(${PROGRAM_NAME}
     hardware_sync
 )
 
-# Modify the below lines to enable/disable output over UART/USB
-pico_enable_stdio_uart(${PROGRAM_NAME} 1)
+#
+# Note: Dont enable USB (PicoW's USB serial uses the same hardware as the Wi-Fi chip)
+#
 pico_enable_stdio_usb(${PROGRAM_NAME} 0)
+pico_enable_stdio_uart(${PROGRAM_NAME} 1)
 
 pico_add_extra_outputs(${PROGRAM_NAME})
 

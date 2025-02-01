@@ -27,6 +27,12 @@ The **Pico W Tank Monitor** is a smart IoT device that monitors liquid levels in
 - Reads and transmits tank level data
 - Manual configuration via Web page
 
+## Todo List
+
+- Upgrade to latest Pico SDK (Current: 1.5.1)
+- Checksum verify Flash memory
+- Put settings into C++ Singleton Class?
+
 ## Future Enhancements
 
 - Configuration changes via MQTT
@@ -42,7 +48,7 @@ The **Pico W Tank Monitor** is a smart IoT device that monitors liquid levels in
    - SSID=**PicoW**, Pwd=**password**
    - Connect to **PicoW** Access Point
 3. **Configure settings**
-   - Browser go to: URL= http://192.168.4.1
+   - Browser go to: URL= <http://192.168.4.1>
    - Select **Configure** and enter WiFi and MQTT settings
    - Select **Save** - the device will reboot and connect with new settings
 4. **Operation**

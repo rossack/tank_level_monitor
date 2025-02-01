@@ -34,8 +34,9 @@ void WifiConn::start(Mode m, volatile bool *bailout) {
         cyw43_arch_enable_sta_mode();
         uint32_t pm;
         cyw43_wifi_get_pm(&cyw43_state, &pm);
-        DEBUG_printf("PM: %x",pm); //a11142
-        cyw43_wifi_pm(&cyw43_state, 0xa11140); // CYW43_NO_POWERSAVE
+        // Disable Power Management - hack to stop random disconnects
+        DEBUG_printf("Changing PM: %x to: %x\n",pm, (pm &= 0xfffffff0)); //a11142
+        cyw43_wifi_pm(&cyw43_state, pm); // CYW43_NO_POWERSAVE
         // Connect to the WiFI network - loop until connected or giveup flag gets set
         while(cyw43_arch_wifi_connect_timeout_ms(
             get_settings()->wifi_ssid,
