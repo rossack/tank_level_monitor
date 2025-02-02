@@ -6,7 +6,7 @@
 #include "lwipopts.h"
 #include "lwip/tcp.h"
 #include "lwip/ip_addr.h"
-#include "lwip/inet.h"  
+#include "lwip/inet.h"
 #include "lwip/apps/httpd.h"
 #include "mqtt_client.h"
 #include "setting_defaults.h"
@@ -21,7 +21,7 @@ static char post_data[MAX_POST_BUFFER_SIZE];
 static int post_data_len;
 
 void process_key_value(char *key, char *value) {
-  
+
   if (strlen(value) == 0) return;
   if (strcmp(key, "ssid") == 0) {
     set_wifi_ssid(value);
@@ -32,7 +32,7 @@ void process_key_value(char *key, char *value) {
   } else if (strcmp(key, "mqPort") == 0) {
     set_mqtt_port(atoi(value));
   } else if (strcmp(key, "mqUser") == 0) {
-    set_mqtt_user(value);    
+    set_mqtt_user(value);
   } else if (strcmp(key, "mqPwd") == 0) {
     set_mqtt_pwd(value);
   } else if (strcmp(key, "mqPubInt") == 0) {
@@ -44,7 +44,7 @@ void process_key_value(char *key, char *value) {
   } else if (strcmp(key, "mqConfTopic") == 0) {
     set_mqtt_config_topic(value);
   } else if (strcmp(key, "initConfig") == 0) {
-    if (atoi(value)) reset_settings();  
+    if (atoi(value)) reset_settings();
   } else {
     DEBUG_printf("Unknown key: %s\n",key);
   }
@@ -52,8 +52,8 @@ void process_key_value(char *key, char *value) {
 
 
 
-/*  
-** Decode URL-encoded data 
+/*
+** Decode URL-encoded data
 ** (like %20 for spaces and + for spaces in form data) into a readable string.
 */
 void url_decode(char *dst, const char *src) {
@@ -79,17 +79,17 @@ void url_decode(char *dst, const char *src) {
 }
 
 
-/* 
-** This function takes the raw POST data (URL-encoded key-value pairs) 
+/*
+** This function takes the raw POST data (URL-encoded key-value pairs)
 ** and splits it into individual key-value pairs using strtok().
 ** Each key and value is then URL-decoded using the url_decode() function.
-** 
+**
 */
 void parse_post_data(char *data) {
     char *key, *value;
     char param_name[MAX_PARAM_NAME_LEN];
     char param_value[MAX_PARAM_VALUE_LEN];
-    
+
     // Tokenize the POST data by '&' (key-value pairs)
     key = strtok(data, "&");
     while (key != NULL) {
@@ -137,7 +137,7 @@ err_t httpd_post_begin(void *connection, const char *uri, const char *http_reque
 
 err_t httpd_post_receive_data(void *connection, struct pbuf *p) {
     size_t len = p->tot_len;
-    
+
     if (post_data_len + len > MAX_POST_BUFFER_SIZE - 1) {
         // Data too large
         return ERR_MEM;
@@ -146,7 +146,7 @@ err_t httpd_post_receive_data(void *connection, struct pbuf *p) {
     // Copy POST data to buffer
     pbuf_copy_partial(p, post_data + post_data_len, len, 0);
     post_data_len += len;
-    
+
     // Process the POST data
     DEBUG_printf("Received POST data: %s\n", post_data);
 
@@ -160,6 +160,8 @@ void httpd_post_finished(void *connection, char *response_uri, u16_t response_ur
 
     parse_post_data(post_data);
     // Set the response URI (e.g., redirect to a success page)
+    // TODO: If factory reset needs a different response
+    //
     snprintf(response_uri, response_uri_len, "/index.shtml");
 }
 
@@ -177,7 +179,7 @@ const char * cgi_led_handler(int iIndex, int iNumParams, char *pcParam[], char *
         else if(strcmp(pcValue[0], "1") == 0)
             cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
     }
-    
+
     // Send the index page back to the user
     return "/index.shtml";
 }
@@ -191,7 +193,7 @@ static const tCGI cgi_handlers[] = {
 
 
 // SSI tags - tag length limited to 8 bytes by default
-const char * ssi_tags[] = {"config", 
+const char * ssi_tags[] = {"config",
                           "sensor",
                           "status",
                           "mqtt"};
@@ -239,4 +241,3 @@ void http_server_init() {
 
 
 
-    

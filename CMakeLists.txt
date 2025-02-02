@@ -25,7 +25,7 @@ endif()
 # ====================================================================================
 set(PICO_BOARD pico_w CACHE STRING "Board type")
 set(PROGRAM_NAME tank_level_monitor)
-set(BUILD_VERSION 0.1)
+set(BUILD_VERSION 0.1.2)
 
 # Pull in Raspberry Pi Pico SDK (must be before project)
 include(pico_sdk_import.cmake)

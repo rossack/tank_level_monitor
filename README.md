@@ -29,12 +29,15 @@ The **Pico W Tank Monitor** is a smart IoT device that monitors liquid levels in
 
 ## Todo List
 
-- Upgrade to latest Pico SDK (Current: 1.5.1)
+- When doing a factory reset send a "disconnected" html response
+- Do a WiFi scan to list AP's during setup
+- Upgrade to latest Pico SDK (Current: 1.5.1 - instability(?) issues with 2.0+)
 - Checksum verify Flash memory
-- Put settings into C++ Singleton Class?
+- Make settings a C++ Singleton Class?
 
 ## Future Enhancements
 
+- Add OLED display
 - Configuration changes via MQTT
 - Support for additional sensors
 - Alert notifications for threshold levels

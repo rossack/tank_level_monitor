@@ -16,7 +16,6 @@ class WifiConn
 {
     private:
     Mode mode = WIFI_NONE; // Type of connection
-    bool connected = false;
     struct netif *netif;
     dhcp_server_t dhcp_server;
 

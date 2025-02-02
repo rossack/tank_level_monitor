@@ -91,7 +91,7 @@ int main() {
 
     // Init idle settings
     absolute_time_t set_time = get_absolute_time();
-    watchdog_enable(2000, true);
+    if (wifi.getMode() == WIFI_STA) watchdog_enable(60000, true);
     bool status_led = false;
     //
     // Idle loop
@@ -103,7 +103,7 @@ int main() {
 
         if (to_ms_since_boot(get_absolute_time()) - to_ms_since_boot(set_time) > 1000) {
             if (publish_timer > 0) {
-                if (publish_timer == 1){
+                if (publish_timer == 1) {
                     publish_timer = get_settings()->mqtt_pint;
                     mqtt_update();
                 } else publish_timer -=1;
@@ -113,7 +113,7 @@ int main() {
                 if (status_led = !status_led) onLED(); else offLED(); // toggle LED in WIFI_STA mode
                 if (!wifi.isConnected()) {
                     wifi.deinit();
-                    watchdog_reboot(0, 0, 0); // start over
+                    watchdog_reboot(0, 0, 200); // start over
                 }
             }
             set_time = get_absolute_time();
@@ -121,6 +121,8 @@ int main() {
 
         if (bailout) {
             // user wants to reset with a new configuration
+            // make sure the idle loop only sees this once.
+            bailout = false;
             reset_settings();
         }
 

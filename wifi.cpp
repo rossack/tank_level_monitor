@@ -42,10 +42,9 @@ void WifiConn::start(Mode m, volatile bool *bailout) {
             get_settings()->wifi_ssid,
             get_settings()->wifi_pwd,
             CYW43_AUTH_WPA2_AES_PSK, 5000) != 0) {
-                DEBUG_printf("WiFi connecting\n");
+                DEBUG_printf("WiFi connecting to: \"%s\"\n", get_settings()->wifi_ssid);
                 if (bailout) break; // check for button press
             }
-        connected = true;
     } else if (m == WIFI_AP) {
         // wifi_scan();
         cyw43_arch_enable_ap_mode(WIFI_SSID, WIFI_PASSWORD, CYW43_AUTH_WPA2_AES_PSK);
@@ -83,7 +82,6 @@ void WifiConn::start(Mode m, volatile bool *bailout) {
         DEBUG_printf("MAC Address: %02X:%02X:%02X:%02X:%02X:%02X\n",
            mac_address[0], mac_address[1], mac_address[2],
            mac_address[3], mac_address[4], mac_address[5]);
-        connected = true;
     } else {
         DEBUG_printf("Invalid WiFi Mode\n");
     }
@@ -100,16 +98,20 @@ bool WifiConn::isConnected() {
     } else {
         status = cyw43_wifi_link_status(&cyw43_state, CYW43_ITF_STA);
     }
+
     if (status == CYW43_LINK_JOIN) {
         // Connected to wifi
         return true;
     } else {
-        DEBUG_printf("WiFi Link Status: %u.\n",status);
-        connected = false;
+        DEBUG_printf("WiFi Link Status: 0x%X\n",status);
         return false;
     }
 }
 
+
+//
+// TBD
+//
 int scan_result_cb(void * parm, const cyw43_ev_scan_result_t * scan_result) {
 
     DEBUG_printf("%s: SSID: %s | Signal Strength: %d dBm | Channel: %d\n", parm,

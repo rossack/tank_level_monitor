@@ -26,7 +26,7 @@ static SETTINGS_T settings = {
     MQTT_STATE_TOPIC,
     MQTT_SENSOR_TOPIC,
     MQTT_CONFIG_TOPIC,
-    DEF_PUB_INTERVAL, 
+    DEF_PUB_INTERVAL,
     0
 };
 */
@@ -36,7 +36,7 @@ static bool settings_changed = false;
 static bool reboot_required = false;
 static SETTINGS_T *settings;
 
-// 
+//
 // Get and Set functions
 //
 
@@ -127,36 +127,36 @@ uint16_t calculate_checksum(const uint8_t *data, size_t length) {
     for (size_t i = 0; i < length; i++) {
         checksum += data[i]; // Add each byte to the checksum
     }
-    return checksum; 
+    return checksum;
 }
 
 
 //
 // Initialise by getting settings from Flash memory
 // If no values found in Flash, set the init_config flag and update Flash for next reboot
-// 
+//
 bool settings_init() {
     bool err;
     SETTINGS_T *flash_settings;
     settings = calloc(1, sizeof(SETTINGS_T));
     if (!settings) return ERR_ABRT;
-    
+
     flash_settings = (SETTINGS_T *)flash_read();
     if (flash_settings == NULL) {
         DEBUG_printf("No settings. Booting in AP Mode.\n");
         // Insert a some default settings
-        set_mqtt_state_topic(MQTT_STATE_TOPIC); 
-        set_mqtt_sensor_topic(MQTT_SENSOR_TOPIC); 
+        set_mqtt_state_topic(MQTT_STATE_TOPIC);
+        set_mqtt_sensor_topic(MQTT_SENSOR_TOPIC);
         set_mqtt_config_topic(MQTT_CONFIG_TOPIC);
         return(false);
     } else {
         // copy flash contents to settings
-        memcpy((char *)settings, flash_settings, sizeof(SETTINGS_T));  
+        memcpy((char *)settings, flash_settings, sizeof(SETTINGS_T));
         // verify checksum
         // TBD
     }
 
-    // 
+    //
     // MQTT Client ID needs a unique value, set it if it's empty
     //
     if (strlen(settings->mqtt_cid)==0) {
@@ -181,13 +181,18 @@ bool settings_init() {
     //
     if (reboot_required) {
         // do deinit of LWIP resources ??
-        watchdog_reboot(0, 0, 500);
+        watchdog_reboot(0, 0, 200);
     }
 }
 
 void reset_settings() {
-    settings_changed = false; //cancel any chages that cause settings to be saved (happens in config form)
+    //
+    // This is called from either a long press RESET or
+    // from the Web form when the user selects a Factory Reset
+    // So, cancel any chages that would cause settings to be saved
+    // and allow time back in main for the http respone to be sent
+    //
+    settings_changed = false;
     flash_erase();
-    watchdog_reboot(0, 0, 0); // do it now
+    watchdog_reboot(0, 0, 200);
 }
- 
