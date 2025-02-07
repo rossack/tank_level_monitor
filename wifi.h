@@ -18,6 +18,7 @@ class WifiConn
     Mode mode = WIFI_NONE; // Type of connection
     struct netif *netif;
     dhcp_server_t dhcp_server;
+    char * scan_result;
 
     public:
     WifiConn();
@@ -27,5 +28,6 @@ class WifiConn
     void stop();
     Mode getMode();
     bool isConnected();
+    int scan(char *sbuf, uint sz);
 
 };

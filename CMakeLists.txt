@@ -23,17 +23,18 @@ if (EXISTS ${picoVscode})
     include(${picoVscode})
 endif()
 # ====================================================================================
-set(PICO_BOARD pico_w CACHE STRING "Board type")
 set(PROGRAM_NAME tank_level_monitor)
-set(BUILD_VERSION 0.1.2)
+set(BUILD_VERSION 0.1.4)
 
 # Pull in Raspberry Pi Pico SDK (must be before project)
 include(pico_sdk_import.cmake)
+set(PICO_USB_DEFAULT_CRITICAL_SECTION_TYPE spinlock) # Use "poll" architecture
+
+project(tank_level_monitor C CXX ASM)
+set(PICO_BOARD pico_w)
 
 # Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
-
-project(tank_level_monitor C CXX ASM)
 
 message("Running makefsdata python script")
 execute_process(COMMAND
@@ -85,6 +86,7 @@ target_link_libraries(${PROGRAM_NAME}
     hardware_flash
     hardware_sync
 )
+
 
 #
 # Note: Dont enable USB (PicoW's USB serial uses the same hardware as the Wi-Fi chip)

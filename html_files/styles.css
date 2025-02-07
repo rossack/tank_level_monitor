@@ -64,3 +64,19 @@ button:disabled {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+table {
+  width: 40%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  display: none; /* Table is hidden by default */
+}
+th,
+td {
+  border: 1px solid black;
+  padding: 10px;
+  text-align: left;
+}
+th {
+  background-color: #f4f4f4;
+}

@@ -2,10 +2,10 @@
  * Copyright (c) 2022 Raspberry Pi (Trading) Ltd.
  *
  * SPDX-License-Identifier: BSD-3-Clause
- * 
+ *
  * LWIP Documentation: http://www.nongnu.org/lwip/
  * https://www.raspberrypi.com/documentation/pico-sdk/
- * 
+ *
  */
 #include <stdio.h>
 #include <time.h>
@@ -52,7 +52,7 @@ typedef struct MQTT_CLIENT_T_ {
 //
 MQTT_CLIENT_T * mqtt_client_state;
 u8_t buffer[1025]; // For incoming messages - can arrive across multiple callbacks
-u32_t data_in = 0; 
+u32_t data_in = 0;
 u8_t data_len = 0;
 //
 // End Globals
@@ -129,7 +129,7 @@ static void mqtt_pub_data_cb(void *arg, const u8_t *data, u16_t len, u8_t flags)
                 if (pintField != NULL) {
                     uint i = json_getInteger(pintField);
                     if ((i > 0) && (i < MAX_INTERVAL)) {
-                        // set_mqtt_pint(i); 
+                        // set_mqtt_pint(i);
                         // update and save settings TBD
                     }
                 }
@@ -158,12 +158,12 @@ void mqtt_sub_request_cb(void *arg, err_t err) {
 
 err_t mqtt_do_publish(MQTT_CLIENT_T *state)
 {
-  char pubBuffer[256]; 
+  char pubBuffer[256];
   err_t err;
   u8_t qos = 0; /* 0 1 or 2, see MQTT specification.  AWS IoT does not support QoS 2 */
   u8_t retain = 0;
 
-  get_status_json(pubBuffer, sizeof(pubBuffer));  
+  get_status_json(pubBuffer, sizeof(pubBuffer));
   cyw43_arch_lwip_begin();
   err = mqtt_publish(state->mqtt_client, get_settings()->mqtt_state_topic, pubBuffer, strlen(pubBuffer), qos, retain, mqtt_pub_request_cb, state);
   cyw43_arch_lwip_end();
@@ -172,7 +172,7 @@ err_t mqtt_do_publish(MQTT_CLIENT_T *state)
   err = mqtt_publish(state->mqtt_client, get_settings()->mqtt_sensor_topic, pubBuffer, strlen(pubBuffer), qos, retain, mqtt_pub_request_cb, state);
   cyw43_arch_lwip_end();
 
-  return err; 
+  return err;
 }
 
 err_t mqtt_do_connect(MQTT_CLIENT_T *state) {
@@ -189,13 +189,13 @@ err_t mqtt_do_connect(MQTT_CLIENT_T *state) {
     ci.will_qos = 0;
 
     const struct mqtt_connect_client_info_t *client_info = &ci;
-    err = mqtt_client_connect(state->mqtt_client, 
-                            &(state->remote_addr), 
-                            get_settings()->mqtt_port, 
-                            mqtt_connection_cb, 
+    err = mqtt_client_connect(state->mqtt_client,
+                            &(state->remote_addr),
+                            get_settings()->mqtt_port,
+                            mqtt_connection_cb,
                             state, client_info);
-    
-    
+
+
     DEBUG_printf("mqtt_connect: %d\n", err);
     return err;
 }
@@ -205,21 +205,21 @@ err_t mqtt_update() {
     err_t err;
     if (mqtt_client_is_connected(mqtt_client_state->mqtt_client)) {
         if ((err = mqtt_do_publish(mqtt_client_state)) == ERR_OK) {
-            flashLED(1);
-        } 
+            //flashLED(1);
+        }
     }
-    return err;    
+    return err;
 }
- 
+
 
 err_t mqtt_client_init() {
     err_t err;
     mqtt_client_state = calloc(1, sizeof(MQTT_CLIENT_T));
     if (!mqtt_client_state) return ERR_ABRT;
     mqtt_client_state->counter = 0;
-    
+
     dns_lookup(mqtt_client_state);
-    mqtt_client_state->mqtt_client = mqtt_client_new();  
+    mqtt_client_state->mqtt_client = mqtt_client_new();
     err = mqtt_do_connect(mqtt_client_state);
     if (err != ERR_OK ) {
         DEBUG_printf("Failed to connect to MQTT Broker\n");

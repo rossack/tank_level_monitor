@@ -1,6 +1,7 @@
 
 #include <stdio.h>
 #include <stdarg.h>
+#include <string.h>
 #include "pico/stdlib.h"
 #include "pico/cyw43_arch.h"
 #include "lwip/tcpip.h"
@@ -46,7 +47,6 @@ void WifiConn::start(Mode m, volatile bool *bailout) {
                 if (bailout) break; // check for button press
             }
     } else if (m == WIFI_AP) {
-        // wifi_scan();
         cyw43_arch_enable_ap_mode(WIFI_SSID, WIFI_PASSWORD, CYW43_AUTH_WPA2_AES_PSK);
         DEBUG_printf("AP Mode SSID: %s\n", WIFI_SSID);
 
@@ -112,28 +112,51 @@ bool WifiConn::isConnected() {
 //
 // TBD
 //
+
+struct scanResults {
+    uint max;
+    uint pos;
+    char * scans;
+};
+
 int scan_result_cb(void * parm, const cyw43_ev_scan_result_t * scan_result) {
 
-    DEBUG_printf("%s: SSID: %s | Signal Strength: %d dBm | Channel: %d\n", parm,
+    DEBUG_printf("SSID: %s | Signal Strength: %d dBm | Channel: %d\n",
             scan_result->ssid, scan_result->rssi, scan_result->channel);
+    struct scanResults * results = (struct scanResults * )parm;
+    uint roomLeft = results->max - results->pos;
+    if ((roomLeft) && (strstr(results->scans, (char *)scan_result->ssid) == NULL)) {
+        int n = snprintf(&results->scans[results->pos], roomLeft-1, "{\"ID\": \"%s\", \"ss\": %d, \"ch\": %u},",
+                scan_result->ssid, scan_result->rssi, scan_result->channel);
+        results->pos += n;
+    }
     return 0;
 }
 
-int wifi_scan() {
-    cyw43_arch_enable_sta_mode();
+
+int WifiConn::scan(char *sbuf, uint sz) {
+    struct scanResults results;
+
+    results.max = sz; // size of sbuf
+    results.scans = sbuf;
+    strcpy(results.scans, "{\"s\":["); // {"s":[ .. ]}
+    results.pos = 6;
 
     // Start the Wi-Fi scan
-    char hello[10] = "Hello";
     cyw43_wifi_scan_options_t scan_options = {0};
-    cyw43_wifi_scan(&cyw43_state, &scan_options, &hello, &scan_result_cb);
+    cyw43_wifi_scan(&cyw43_state, &scan_options, &results, &scan_result_cb);
 
     // Wait for the scan to complete
     while (cyw43_wifi_scan_active(&cyw43_state)) {
         cyw43_arch_poll();
         sleep_ms(100);
     }
-    cyw43_arch_disable_sta_mode();
-    return 0;
+    if (results.pos > 6) {
+         // remove final comma
+        results.scans[results.pos-1] = ']';
+    } else results.scans[results.pos] = ']';
+    results.scans[results.pos++] = '}';
+    return results.pos;
 }
 
 

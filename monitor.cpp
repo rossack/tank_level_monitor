@@ -25,6 +25,12 @@ volatile bool bailout = false;
 MPButton mpButton; // Momentary Push button
 WifiConn wifi; // WiFi connection
 
+
+extern "C" uint get_wifi_json(char *sbuf, uint sz) {
+    return wifi.scan(sbuf, sz);
+}
+
+
 void extInterrupt(uint gpio, uint32_t hw_e) {
     if (gpio == MPB_PIN) {
         mpButton.interrupt(hw_e); // notify the button object
@@ -120,8 +126,8 @@ int main() {
         }
 
         if (bailout) {
-            // user wants to reset with a new configuration
-            // make sure the idle loop only sees this once.
+            // User wants to reset with a new configuration.
+            // Make sure the idle loop only sees a bailout once.
             bailout = false;
             reset_settings();
         }

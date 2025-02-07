@@ -15,11 +15,21 @@ The **Pico W Tank Monitor** is a smart IoT device that monitors liquid levels in
 
 ## Build Versions
 
-### v0.1.1 - Bug/Feature Release
+### v0.1.4 - Bug/Feature Release
+
+- Added Wifi Scan to config.html page, useful when setting up in AP mode
+- Note: cyw43_wifi_scan() works in both AP and STA modes!
+- mqtt_update() doesnt flash the LED anymore - heartbeat is more useful feedback
+
+### v0.1.3 - Bug/Feature Release
 
 - Fixed random wireless dissassociate by turning off PM
 - Added watchdog in case WiFi is lost
 - Moved the radio functions into wifi wrapper class
+
+### v0.1.2 - Bug/Feature Release
+
+- I forget :-()
 
 ### v0.0.1 - Initial Release
 
@@ -29,15 +39,19 @@ The **Pico W Tank Monitor** is a smart IoT device that monitors liquid levels in
 
 ## Todo List
 
-- When doing a factory reset send a "disconnected" html response
-- Do a WiFi scan to list AP's during setup
+- When doing a web form factory reset send a "disconnected" html response
+- Do a WiFi scan to list AP's during setup: done v0.1.4
+- Do a build using interrupt driven LWIP
 - Upgrade to latest Pico SDK (Current: 1.5.1 - instability(?) issues with 2.0+)
 - Checksum verify Flash memory
 - Make settings a C++ Singleton Class?
+- Need to fix Build Kits (Release, Debug. Arch: Poll, Threadsafe background )
 
 ## Future Enhancements
 
-- Add OLED display
+- OLED display
+- Digital smoothing/filtering of ADC values
+- Value statistics: Usage Rate, Mean, SD
 - Configuration changes via MQTT
 - Support for additional sensors
 - Alert notifications for threshold levels
@@ -46,19 +60,21 @@ The **Pico W Tank Monitor** is a smart IoT device that monitors liquid levels in
 ## Installation & Usage
 
 1. **Flash the firmware**
-2. **First time startup**
+2. **First time startup (no settings in Flash)**
    - Pico boots into Acess Point (AP) mode
    - SSID=**PicoW**, Pwd=**password**
-   - Connect to **PicoW** Access Point
+   - Connect your device (phone) to **PicoW** Access Point
 3. **Configure settings**
-   - Browser go to: URL= <http://192.168.4.1>
+   - In a Web browser go to: URL= <http://192.168.4.1>
    - Select **Configure** and enter WiFi and MQTT settings
    - Select **Save** - the device will reboot and connect with new settings
+   - Check your router (DHCP server) to find new network address
+   - Good idea to tell DHCP to assign a fixed address
 4. **Operation**
    - Status led stays ON during startup and WiFi connecting.
    - Status led blinks: 1-Sec-ON, 1-Sec-OFF device is successfully connected.
-   - Status led short blinks: device is in AP mode
-   - Connect to Web interface to dispaly the tank level (check your router to find the device address)
+   - Status led short blinks: device is waiting in AP mode at <http://192.168.4.1>
+   - Connect to device Web server to dispaly the tank level
    - Integrate with an IoT dashboard (eg Home Assistant).
    - If you got the WiFi settings wrong, use the reset button (long press) to erase settings and start again.
 
@@ -66,7 +82,7 @@ The **Pico W Tank Monitor** is a smart IoT device that monitors liquid levels in
 
 - Raspberry Pi Pico W
 - 4-20mA pressure transducer
-- Power supply (e.g., 12v DC)
+- Power supply (e.g., 12v DC for the transducer and 5v for the PicoW)
 
 ## Pin Connections
 

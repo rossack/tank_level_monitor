@@ -20,6 +20,19 @@
             <input type="password" maxlength="16" id="pwd" name="pwd" />
             <button type="button" id="toggle-pwd">Show</button>
           </div>
+          <button type="button" onclick="handleWifiScan()">WiFi Scan</button>
+          <table id="scanTable">
+            <thead>
+              <tr>
+                <th>SSID</th>
+                <th>dBm</th>
+                <th>Chan</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Rows will be inserted here -->
+            </tbody>
+          </table>
         </div>
         <hr />
 
@@ -120,7 +133,7 @@
         })
         .catch((error) => {
           console.error("Fetch Error:", error);
-          alert("Failed to fetch data. Check console for details.");
+          alert("Failed to fetch data.");
         });
 
       const passwordInput = document.getElementById("pwd");
@@ -144,6 +157,38 @@
 
         // Redirect to home page
         window.location.href = "/index.html";
+      }
+
+      function handleWifiScan() {
+        fetch("/get_wifi.shtml")
+          .then((response) => {
+            // Check if response is successful
+            if (!response.ok) {
+              throw new Error("Network Error: " + response.statusText);
+            }
+            return response.json(); // Parse JSON response
+          })
+          .then((data) => {
+            // list the results
+            const table = document.getElementById("scanTable");
+            table.style.display = "table";
+            const tableBody = table.querySelector("tbody");
+            tableBody.innerHTML = ""; // delete any previous rows
+            data.s.forEach((scan) => {
+              //console.log(`SSID: ${scan.ID}, ss: ${scan.ss}, ch: ${scan.ch} `);
+              const row = document.createElement("tr");
+              row.innerHTML = `
+                <td>${scan.ID}</td>
+                <td>${scan.ss}</td>
+                <td>${scan.ch}</td>
+            `;
+              tableBody.appendChild(row);
+            });
+          })
+          .catch((error) => {
+            console.error("Fetch Error:", error);
+            alert("Failed to fetch data.");
+          });
       }
 
       function showAlert(checkbox) {

@@ -20,6 +20,8 @@
 static char post_data[MAX_POST_BUFFER_SIZE];
 static int post_data_len;
 
+extern uint get_wifi_json(char *sbuf, uint sz);
+
 void process_key_value(char *key, char *value) {
 
   if (strlen(value) == 0) return;
@@ -196,12 +198,14 @@ static const tCGI cgi_handlers[] = {
 const char * ssi_tags[] = {"config",
                           "sensor",
                           "status",
-                          "mqtt"};
+                          "mqtt",
+                          "wifi"};
 
 u16_t ssi_handler(int iIndex, char *pcInsert, int iInsertLen) {
   // The default maximum size of the inserted string is 192 characters
-  // The config JSON object is bigger so need to increase LWIP_HTTPD_MAX_TAG_INSERT_LEN in lwiopts.h
-  // Could also use: LWIP_HTTPD_SSI_MULTIPART
+  // The config JSON object is bigger so we increase
+  // LWIP_HTTPD_MAX_TAG_INSERT_LEN in lwiopts.h to 300
+  // Could also use: LWIP_HTTPD_SSI_MULTIPART <TBD>
   size_t inserted;
   switch (iIndex) {
   case 0: // config
@@ -224,6 +228,11 @@ u16_t ssi_handler(int iIndex, char *pcInsert, int iInsertLen) {
       inserted = get_mqtt_json(pcInsert, iInsertLen);
     }
     break;
+  case 4: // wifi scan
+    {
+      inserted = get_wifi_json(pcInsert, iInsertLen);
+    }
+    break;
   default:
     inserted = 0;
     break;
@@ -235,7 +244,7 @@ u16_t ssi_handler(int iIndex, char *pcInsert, int iInsertLen) {
 void http_server_init() {
 
     httpd_init();
-    http_set_ssi_handler(ssi_handler, ssi_tags, LWIP_ARRAYSIZE(ssi_tags));
+    http_set_ssi_handler(ssi_handler, ssi_tags, 5); // LWIP_ARRAYSIZE(ssi_tags)
     http_set_cgi_handlers(cgi_handlers, 1);  // specify number of handlers
 }
 
