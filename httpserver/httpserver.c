@@ -149,9 +149,7 @@ err_t httpd_post_receive_data(void *connection, struct pbuf *p) {
     pbuf_copy_partial(p, post_data + post_data_len, len, 0);
     post_data_len += len;
 
-    // Process the POST data
-    DEBUG_printf("Received POST data: %s\n", post_data);
-
+    //DEBUG_printf("Received POST data: %s\n", post_data);
     // Free the pbuf
     pbuf_free(p);
 
@@ -162,7 +160,7 @@ void httpd_post_finished(void *connection, char *response_uri, u16_t response_ur
 
     parse_post_data(post_data);
     // Set the response URI (e.g., redirect to a success page)
-    // TODO: If factory reset needs a different response
+    // TBD: If factory reset needs a different response
     //
     snprintf(response_uri, response_uri_len, "/index.shtml");
 }
@@ -205,7 +203,7 @@ u16_t ssi_handler(int iIndex, char *pcInsert, int iInsertLen) {
   // The default maximum size of the inserted string is 192 characters
   // The config JSON object is bigger so we increase
   // LWIP_HTTPD_MAX_TAG_INSERT_LEN in lwiopts.h to 300
-  // Could also use: LWIP_HTTPD_SSI_MULTIPART <TBD>
+  // TBD: Change to LWIP_HTTPD_SSI_MULTIPART
   size_t inserted;
   switch (iIndex) {
   case 0: // config

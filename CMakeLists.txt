@@ -24,7 +24,7 @@ if (EXISTS ${picoVscode})
 endif()
 # ====================================================================================
 set(PROGRAM_NAME tank_level_monitor)
-set(BUILD_VERSION 0.1.4)
+#set(BUILD_VERSION 0.1.4)
 
 # Pull in Raspberry Pi Pico SDK (must be before project)
 include(pico_sdk_import.cmake)
@@ -52,7 +52,7 @@ add_executable(${PROGRAM_NAME}
     monitor.cpp
 )
 pico_set_program_name(${PROGRAM_NAME} "tank_level_monitor")
-pico_set_program_version(${PROGRAM_NAME} "0.1.2")
+pico_set_program_version(${PROGRAM_NAME} "0.1.5")
 
 
 # Add the standard include files to the build

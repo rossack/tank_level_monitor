@@ -186,13 +186,15 @@ bool settings_init() {
 }
 
 void reset_settings() {
-    //
     // This is called from either a long press RESET or
-    // from the Web form when the user selects a Factory Reset
-    // So, cancel any chages that would cause settings to be saved
-    // and allow time back in main for the http respone to be sent
+    // from the Web form when the user selects a Factory Reset.
+    //
+    // TBD: Move the Factory Reset out of the web form to avoid settings_changed
+    // being set back to true duing processing of the form fields and then
+    // save_settings() getting called before watchdog reboots.
+    // This would allow time back in main for the http respone to be sent
     //
     settings_changed = false;
     flash_erase();
-    watchdog_reboot(0, 0, 200);
+    watchdog_reboot(0, 0, 0); // do it now
 }

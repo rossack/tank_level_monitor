@@ -15,6 +15,12 @@ The **Pico W Tank Monitor** is a smart IoT device that monitors liquid levels in
 
 ## Build Versions
 
+### v0.1.5 - Bug/Feature Release
+
+- Make sure WiFi scan results dont overflow the results buffer
+- Added Good, Fair, Poor to signal strength results
+- Do immediate reboot on Factory Reset to avoid possible race condition with save_settings()
+
 ### v0.1.4 - Bug/Feature Release
 
 - Added Wifi Scan to config.html page, useful when setting up in AP mode
@@ -39,13 +45,14 @@ The **Pico W Tank Monitor** is a smart IoT device that monitors liquid levels in
 
 ## Todo List
 
-- When doing a web form factory reset send a "disconnected" html response
-- Do a WiFi scan to list AP's during setup: done v0.1.4
+- Change config page Factory Reset. Allow a "disconnected" html response before rebooting
+- The get_xxx api is limited by LWIP_HTTPD_MAX_TAG_INSERT_LEN (use LWIP_HTTPD_SSI_MULTIPART)
 - Do a build using interrupt driven LWIP
 - Upgrade to latest Pico SDK (Current: 1.5.1 - instability(?) issues with 2.0+)
 - Checksum verify Flash memory
-- Make settings a C++ Singleton Class?
-- Need to fix Build Kits (Release, Debug. Arch: Poll, Threadsafe background )
+- Flash settings are limited to a single 256 byte page
+- Make settings a C++ Class?
+- Need to fix Build Kits (Release, Debug. Select Arch: Poll, Threadsafe background )
 
 ## Future Enhancements
 
@@ -76,10 +83,11 @@ The **Pico W Tank Monitor** is a smart IoT device that monitors liquid levels in
    - Status led short blinks: device is waiting in AP mode at <http://192.168.4.1>
    - Connect to device Web server to dispaly the tank level
    - Integrate with an IoT dashboard (eg Home Assistant).
-   - If you got the WiFi settings wrong, use the reset button (long press) to erase settings and start again.
+   - If the WiFi settings are wrong, use the reset button (long press > 1-Sec) to erase settings and start again.
 
 ## Hardware Requirements
 
+- See: picotool info -a tank_level_monitor.uf2
 - Raspberry Pi Pico W
 - 4-20mA pressure transducer
 - Power supply (e.g., 12v DC for the transducer and 5v for the PicoW)
@@ -95,10 +103,10 @@ The **Pico W Tank Monitor** is a smart IoT device that monitors liquid levels in
 
 ## Software Requirements
 
-- C SDK for Raspberry Pi Pico W
-- LWIP Stack
-- MQTT library (Included in LWIP library)
-- Wi-Fi CYW43 networking libraries for Pico W
+- SDK for Raspberry Pi PicoW
+- WiFi CYW43 networking libraries for PicoW (Included in SDK)
+- LWIP Stack (Included in SDK) <https://savannah.nongnu.org/projects/lwip/>
+- VSCode extension for Raspberry Pi Pico <https://github.com/raspberrypi/pico-vscode>
 
 ## Configuration
 
@@ -112,7 +120,7 @@ The system supports the following configuration parameters:
 | `mqtt-port`             | MQTT Port (default: 1883)                      |
 | `mqtt-user`             | MQTT Username                                  |
 | `mqtt-pwd`              | MQTT Password                                  |
-| `mqtt-client-id`        | Unique MQTT Client ID                          |
+| `mqtt-client-id`        | Unique MQTT Client ID (derived from Pico id)   |
 | `mqtt-publish-interval` | Data publishing interval (seconds)             |
 | `mqtt-sensor-topic`     | MQTT topic for sensor data                     |
 | `mqtt-config-topic`     | MQTT topic for receiving configuration updates |

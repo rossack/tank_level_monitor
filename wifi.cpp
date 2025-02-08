@@ -108,32 +108,40 @@ bool WifiConn::isConnected() {
     }
 }
 
-
-//
-// TBD
-//
-
 struct scanResults {
     uint max;
     uint pos;
     char * scans;
 };
 
+//
+// Get the scan result, convert it to a JSON string and append the string to scanResults
+// Calculate roomLeft by sizing the current result to see if it will fit
+//
 int scan_result_cb(void * parm, const cyw43_ev_scan_result_t * scan_result) {
+    struct scanResults * results = (struct scanResults * )parm;
+    int room_left = results->max - results->pos - 3; // allow for the closing "]}\NULL chars"
+    char res_str[128]; // SSID max=32 chars + RSSI + Channel
+    int res_len = snprintf(res_str, sizeof(res_str),
+        "{\"ID\": \"%s\", \"ss\": %d, \"ch\": %u},",
+        scan_result->ssid, scan_result->rssi, scan_result->channel);
 
     DEBUG_printf("SSID: %s | Signal Strength: %d dBm | Channel: %d\n",
             scan_result->ssid, scan_result->rssi, scan_result->channel);
-    struct scanResults * results = (struct scanResults * )parm;
-    uint roomLeft = results->max - results->pos;
-    if ((roomLeft) && (strstr(results->scans, (char *)scan_result->ssid) == NULL)) {
-        int n = snprintf(&results->scans[results->pos], roomLeft-1, "{\"ID\": \"%s\", \"ss\": %d, \"ch\": %u},",
-                scan_result->ssid, scan_result->rssi, scan_result->channel);
-        results->pos += n;
+
+    // Check if enough room and ignore duplicates
+    if ((room_left > res_len) && (strstr(results->scans, (char *)scan_result->ssid) == NULL)) {
+        strcpy(&results->scans[results->pos], res_str);
+        results->pos += res_len;
     }
     return 0;
 }
 
-
+//
+// Scan for Wifi Access Points
+// Caller passes a buffer which gets populated with an
+// array of JSON objects
+//
 int WifiConn::scan(char *sbuf, uint sz) {
     struct scanResults results;
 
@@ -151,11 +159,10 @@ int WifiConn::scan(char *sbuf, uint sz) {
         cyw43_arch_poll();
         sleep_ms(100);
     }
-    if (results.pos > 6) {
-         // remove final comma
-        results.scans[results.pos-1] = ']';
-    } else results.scans[results.pos] = ']';
-    results.scans[results.pos++] = '}';
+    if (results.scans[results.pos-1] == ',') results.pos -= 1; // remove the last comma
+    results.scans[results.pos] = ']'; // close the array
+    results.scans[++results.pos] = '}'; // close the JSON object
+    results.scans[++results.pos] = 0; //
     return results.pos;
 }
 

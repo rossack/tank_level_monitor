@@ -159,6 +159,16 @@
         window.location.href = "/index.html";
       }
 
+      // Function to rate signal strength
+      function getSignalRating(rssi) {
+        if (rssi >= -60) {
+          return "Good";
+        } else if (rssi >= -75) {
+          return "Fair";
+        } else {
+          return "Poor";
+        }
+      }
       function handleWifiScan() {
         fetch("/get_wifi.shtml")
           .then((response) => {
@@ -174,12 +184,14 @@
             table.style.display = "table";
             const tableBody = table.querySelector("tbody");
             tableBody.innerHTML = ""; // delete any previous rows
+            // TBD: If empty array tell the user
             data.s.forEach((scan) => {
-              //console.log(`SSID: ${scan.ID}, ss: ${scan.ss}, ch: ${scan.ch} `);
               const row = document.createElement("tr");
+              const rssiValue = scan.ss;
+              const rating = getSignalRating(rssiValue);
               row.innerHTML = `
                 <td>${scan.ID}</td>
-                <td>${scan.ss}</td>
+                <td>${rssiValue} (${rating})</td>
                 <td>${scan.ch}</td>
             `;
               tableBody.appendChild(row);
