@@ -2,7 +2,7 @@
 
 ## Overview
 
-The **Pico W Tank Monitor** is a smart IoT device that monitors liquid levels in a tank using a **4-20mA pressure transducer** and an **analog-to-digital converter (ADC)**. The system is built on a **Raspberry Pi Pico W**, which connects to a network via Wi-Fi and publishes sensor data using **MQTT**.
+The **Pico W Tank Monitor** is a smart IoT device that monitors liquid levels in a tank using a **4-20mA pressure transducer** and an **analog-to-digital converter (ADC)**. The software runs on a **Raspberry Pi Pico W**, which connects to a network via Wi-Fi and can publish sensor data via **MQTT**.
 
 ## Features
 
@@ -11,7 +11,7 @@ The **Pico W Tank Monitor** is a smart IoT device that monitors liquid levels in
 - Connects to **Wi-Fi** and operates as a client or **Wireless Access Point (AP)** for setup.
 - Publishes data to an **MQTT broker** at configurable intervals.
 - Web pages for level display, status and configuration.
-- Reset button to erase settings and go back to initial configuration.
+- Reset button via GPIO13 will erase flash and go back to factory setup.
 
 ## Build Versions
 
@@ -45,24 +45,32 @@ The **Pico W Tank Monitor** is a smart IoT device that monitors liquid levels in
 
 ## Todo List
 
-- Change config page Factory Reset. Allow a "disconnected" html response before rebooting
-- The get_xxx api is limited by LWIP_HTTPD_MAX_TAG_INSERT_LEN (use LWIP_HTTPD_SSI_MULTIPART)
+- Use PicoW unique ID for AP mode SSID
+- The get_xxx api is limited by LWIP_HTTPD_MAX_TAG_INSERT_LEN (should use LWIP_HTTPD_SSI_MULTIPART)
 - Do a build using interrupt driven LWIP
 - Upgrade to latest Pico SDK (Current: 1.5.1 - instability(?) issues with 2.0+)
-- Checksum verify Flash memory
+- Use checksum to verify Flash memory
 - Flash settings are limited to a single 256 byte page
 - Make settings a C++ Class?
-- Need to fix Build Kits (Release, Debug. Select Arch: Poll, Threadsafe background )
+- Fix Build Kits (Release, Debug. Select Arch: Poll, Threadsafe background )
 
 ## Future Enhancements
 
-- OLED display
+- User specified units and scale factor for level display
+- OLED Display - SSD1306 I2C
 - Digital smoothing/filtering of ADC values
 - Value statistics: Usage Rate, Mean, SD
 - Configuration changes via MQTT
 - Support for additional sensors
 - Alert notifications for threshold levels
 - OTA firmware updates
+- PCB
+  -- Mounting holes larger diamenter
+  -- Test Points
+  -- Direct through holes for 4-20mA converter
+  -- Cable shield connected to ground
+  -- Factory reset - external button??
+  -- Reduce signal Noise
 
 ## Installation & Usage
 

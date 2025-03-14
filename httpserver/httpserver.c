@@ -45,8 +45,6 @@ void process_key_value(char *key, char *value) {
     set_mqtt_sensor_topic(value);
   } else if (strcmp(key, "mqConfTopic") == 0) {
     set_mqtt_config_topic(value);
-  } else if (strcmp(key, "initConfig") == 0) {
-    if (atoi(value)) reset_settings();
   } else {
     DEBUG_printf("Unknown key: %s\n",key);
   }
@@ -197,7 +195,8 @@ const char * ssi_tags[] = {"config",
                           "sensor",
                           "status",
                           "mqtt",
-                          "wifi"};
+                          "wifi",
+                          "reset"};
 
 u16_t ssi_handler(int iIndex, char *pcInsert, int iInsertLen) {
   // The default maximum size of the inserted string is 192 characters
@@ -226,9 +225,17 @@ u16_t ssi_handler(int iIndex, char *pcInsert, int iInsertLen) {
       inserted = get_mqtt_json(pcInsert, iInsertLen);
     }
     break;
-  case 4: // wifi scan
+    case 4: // wifi scan
     {
       inserted = get_wifi_json(pcInsert, iInsertLen);
+    }
+    break;
+    case 5: // do a factory reset
+    {
+      char frStr[]  = "{\"Reset\" : \"OK\"}";
+      memcpy(pcInsert,frStr, strlen(frStr));
+      inserted = strlen(frStr);
+      reset_settings();
     }
     break;
   default:
@@ -242,7 +249,7 @@ u16_t ssi_handler(int iIndex, char *pcInsert, int iInsertLen) {
 void http_server_init() {
 
     httpd_init();
-    http_set_ssi_handler(ssi_handler, ssi_tags, 5); // LWIP_ARRAYSIZE(ssi_tags)
+    http_set_ssi_handler(ssi_handler, ssi_tags, 6); // LWIP_ARRAYSIZE(ssi_tags)
     http_set_cgi_handlers(cgi_handlers, 1);  // specify number of handlers
 }
 

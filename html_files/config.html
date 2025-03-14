@@ -80,21 +80,17 @@
           </div>
         </div>
         <hr />
-        <label>
-          Factory Reset
-          <input
-            type="checkbox"
-            id="initConfig"
-            name="initConfig"
-            value="1"
-            onclick="showAlert(this)"
-          />
-        </label>
-        <hr />
         <br /><br />
         <!-- Submit Button -->
         <button type="submit" id="submit-button">Save</button>
         <button type="button" onclick="handleCancel()">Cancel</button>
+        <button
+          type="button"
+          style="background-color: red"
+          onclick="handleFactoryReset()"
+        >
+          Factory Reset
+        </button>
       </form>
     </div>
 
@@ -203,15 +199,39 @@
           });
       }
 
-      function showAlert(checkbox) {
-        if (checkbox.checked) {
-          alert("Factory Reset will restart in WiFi AP mode on Save");
-        }
-      }
-
       function mqttEnable(checkbox) {
         const div = document.getElementById("toggleDiv");
         div.style.display = checkbox.checked ? "block" : "none";
+      }
+
+      function handleFactoryReset() {
+        // Show confirmation popup
+        const userConfirmed = confirm(
+          "Factory Reset will erase all settings. This action cannot be undone!"
+        );
+
+        if (userConfirmed) {
+          // Perform reset action
+          // TBD: Tell the user the new SSID/pwd and IP address
+          //
+          alert("Factory reset. SSID=PicoW_AP");
+          fetch("/get_reset.shtml")
+            .then((response) => {
+              // Check if response is successful
+              if (!response.ok) {
+                throw new Error("Network Error: " + response.statusText);
+              }
+              return response.json(); // Parse JSON response
+            })
+            .then((data) => {
+              // Server is rebooting into AP mode.
+              // check for OK result? TBD
+            })
+            .catch((error) => {
+              console.error("Fetch Error:", error);
+              alert("Failed to fetch data.");
+            });
+        }
       }
     </script>
   </body>
