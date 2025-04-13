@@ -17,9 +17,11 @@ The **Pico W Tank Monitor** is a smart IoT device that monitors liquid levels in
 
 ### v0.1.5 - Bug/Feature Release
 
+- MQTT will try to reconnect if not connected, added reconnect count to status messages
+- Fixed Version number in status messages
 - Make sure WiFi scan results dont overflow the results buffer
 - Added Good, Fair, Poor to signal strength results
-- Do immediate reboot on Factory Reset to avoid possible race condition with save_settings()
+- Do immediate reboot on Factory Reset to avoid possible race condition with save_settings
 
 ### v0.1.4 - Bug/Feature Release
 
@@ -45,6 +47,7 @@ The **Pico W Tank Monitor** is a smart IoT device that monitors liquid levels in
 
 ## Todo List
 
+- BUILD_VERSION string is broken
 - Use PicoW unique ID for AP mode SSID
 - The get_xxx api is limited by LWIP_HTTPD_MAX_TAG_INSERT_LEN (should use LWIP_HTTPD_SSI_MULTIPART)
 - Do a build using interrupt driven LWIP

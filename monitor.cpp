@@ -56,6 +56,7 @@ int main() {
     stdio_init_all();
 
     // Add metadata
+    bi_decl(bi_program_version_string(BUILD_VERSION));
     bi_decl(bi_program_description("Monitor voltage on ADC0."));
     bi_decl(bi_1pin_with_name(ADC_PIN, "ADC input"));
     bi_decl(bi_1pin_with_name(LED_PIN, "Status LED")); // see utils.h for pin definition

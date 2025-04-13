@@ -60,13 +60,14 @@ u8_t data_len = 0;
 
 
 u32_t get_mqtt_json(char *sbuf, uint sz) {
-    snprintf(sbuf, sz, "{\"ID\": \"%s\",\"Host\": \"%s\",\"Port\": %u,\"User\": \"%s\",\"PubCount\": %u,\"PubInt\": %u}",
+    snprintf(sbuf, sz, "{\"ID\": \"%s\",\"Host\": \"%s\",\"Port\": %u,\"User\": \"%s\",\"PubInt\": %u,\"PubCount\": %u,\"Reconnects\": %u}",
       get_settings()->mqtt_cid,
       get_settings()->mqtt_host,
       get_settings()->mqtt_port,
       get_settings()->mqtt_user,
+      get_settings()->mqtt_pint,
       mqtt_client_state->counter,
-      get_settings()->mqtt_pint
+      mqtt_client_state->reconnect
       );
     return strlen(sbuf);
 }
@@ -148,8 +149,9 @@ static void mqtt_connection_cb(mqtt_client_t *client, void *arg, mqtt_connection
 
 void mqtt_pub_request_cb(void *arg, err_t err) {
     MQTT_CLIENT_T *state = (MQTT_CLIENT_T *)arg;
-    state->counter++;
-    DEBUG_printf("Published %d\n", state->counter);
+    //state->counter++;
+    mqtt_client_state->counter++;
+    DEBUG_printf("Published %d\n", mqtt_client_state->counter); //state->counter);
 }
 
 void mqtt_sub_request_cb(void *arg, err_t err) {
@@ -195,7 +197,6 @@ err_t mqtt_do_connect(MQTT_CLIENT_T *state) {
                             mqtt_connection_cb,
                             state, client_info);
 
-
     DEBUG_printf("mqtt_connect: %d\n", err);
     return err;
 }
@@ -207,6 +208,13 @@ err_t mqtt_update() {
         if ((err = mqtt_do_publish(mqtt_client_state)) == ERR_OK) {
             //flashLED(1);
         }
+    } else {
+        mqtt_client_state->reconnect++;
+        err = mqtt_do_connect(mqtt_client_state);
+        if (err != ERR_OK ) {
+            DEBUG_printf("MQTT connect failed: %u\n",err);
+            return err;
+        }
     }
     return err;
 }
@@ -217,12 +225,14 @@ err_t mqtt_client_init() {
     mqtt_client_state = calloc(1, sizeof(MQTT_CLIENT_T));
     if (!mqtt_client_state) return ERR_ABRT;
     mqtt_client_state->counter = 0;
+    mqtt_client_state->reconnect = 0;
+
 
     dns_lookup(mqtt_client_state);
     mqtt_client_state->mqtt_client = mqtt_client_new();
     err = mqtt_do_connect(mqtt_client_state);
     if (err != ERR_OK ) {
-        DEBUG_printf("Failed to connect to MQTT Broker\n");
+        DEBUG_printf("MQTT connect failed: %u\n",err);
         return err;
     }
 

@@ -43,6 +43,7 @@ void WifiConn::start(Mode m, volatile bool *bailout) {
             get_settings()->wifi_ssid,
             get_settings()->wifi_pwd,
             CYW43_AUTH_WPA2_AES_PSK, 5000) != 0) {
+                cyw43_arch_poll();
                 DEBUG_printf("WiFi connecting to: \"%s\"\n", get_settings()->wifi_ssid);
                 if (bailout) break; // check for button press
             }

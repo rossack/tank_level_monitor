@@ -23,8 +23,6 @@ if (EXISTS ${picoVscode})
     include(${picoVscode})
 endif()
 # ====================================================================================
-set(PROGRAM_NAME tank_level_monitor)
-#set(BUILD_VERSION 0.1.4)
 
 # Pull in Raspberry Pi Pico SDK (must be before project)
 include(pico_sdk_import.cmake)
@@ -32,9 +30,12 @@ set(PICO_USB_DEFAULT_CRITICAL_SECTION_TYPE spinlock) # Use "poll" architecture
 
 project(tank_level_monitor C CXX ASM)
 set(PICO_BOARD pico_w)
+set(PROGRAM_NAME tank_level_monitor)
+set(BUILD_VERSION 0.1.5)
 
 # Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
+#pico_set_program_version(${PROGRAM_NAME} ${BUILD_VERSION})
 
 message("Running makefsdata python script")
 execute_process(COMMAND
@@ -51,8 +52,6 @@ add_definitions(-DDEBUG_BUILD)
 add_executable(${PROGRAM_NAME}
     monitor.cpp
 )
-pico_set_program_name(${PROGRAM_NAME} "tank_level_monitor")
-pico_set_program_version(${PROGRAM_NAME} "0.1.5")
 
 
 # Add the standard include files to the build
