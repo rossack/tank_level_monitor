@@ -212,7 +212,7 @@ err_t mqtt_update() {
         mqtt_client_state->reconnect++;
         err = mqtt_do_connect(mqtt_client_state);
         if (err != ERR_OK ) {
-            DEBUG_printf("MQTT connect failed: %u\n",err);
+            DEBUG_printf("MQTT connect failed: %d\n",err);
             return err;
         }
     }
@@ -232,7 +232,7 @@ err_t mqtt_client_init() {
     mqtt_client_state->mqtt_client = mqtt_client_new();
     err = mqtt_do_connect(mqtt_client_state);
     if (err != ERR_OK ) {
-        DEBUG_printf("MQTT connect failed: %u\n",err);
+        DEBUG_printf("MQTT connect failed: %d\n",err);
         return err;
     }
 

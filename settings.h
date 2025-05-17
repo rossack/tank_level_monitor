@@ -6,7 +6,7 @@
 #define CARR32 32 // up to 31 characters
 
 typedef struct SETTINGS_T_ {
-    uint16_t checksum; 
+    uint16_t checksum;
     char  wifi_ssid[CARR16];
     char wifi_pwd[CARR16];
     char mqtt_host[CARR32];
@@ -18,6 +18,8 @@ typedef struct SETTINGS_T_ {
     char mqtt_sensor_topic[CARR32];
     char mqtt_config_topic[CARR32];
     uint16_t mqtt_pint;
+    uint16_t data_lint;
+
 } SETTINGS_T;
 
 //
@@ -30,6 +32,7 @@ extern "C" {
 
 bool set_wifi_ssid(char *);
 bool set_wifi_pwd(char *);
+void set_data_lint(uint);
 bool set_mqtt_host(char *);
 bool set_mqtt_port(uint);
 bool set_mqtt_user(char *);

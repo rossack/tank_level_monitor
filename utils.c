@@ -1,6 +1,7 @@
 
 #include <stdio.h>
 #include <stdarg.h>
+#include <malloc.h>
 #include "pico/stdlib.h"
 #include "pico/cyw43_arch.h"
 #include "hardware/adc.h"
@@ -8,8 +9,10 @@
 #include "utils.h"
 
 uint get_config_json(char *sbuf, uint sz) {
-    snprintf(sbuf, sz, "{\"ssid\": \"%s\","
+    snprintf(sbuf, sz,
+    "{\"ssid\": \"%s\","
     "\"pwd\": \"%s\","
+    "\"logInt\": %d,"
     "\"mqHost\": \"%s\","
     "\"mqPort\": %d,"
     "\"mqUser\": \"%s\","
@@ -20,6 +23,7 @@ uint get_config_json(char *sbuf, uint sz) {
     "\"mqPubInt\": %d}",
       get_settings()->wifi_ssid,
       get_settings()->wifi_pwd,
+      get_settings()->data_lint,
       get_settings()->mqtt_host,
       get_settings()->mqtt_port,
       get_settings()->mqtt_user,
@@ -41,6 +45,11 @@ uint get_sensor_json(char *sbuf, uint sz) {
     return strlen(sbuf);
 }
 
+//
+//DEBUG_printf("Total allocated space: %d\n", meminfo.uordblks);
+//DEBUG_printf("Total free space:     %d\n", meminfo.fordblks);
+
+
 uint get_status_json(char *sbuf, uint sz) {
     int32_t rssi;
     cyw43_wifi_get_rssi(&cyw43_state, &rssi);
@@ -48,6 +57,8 @@ uint get_status_json(char *sbuf, uint sz) {
     cyw43_wifi_get_mac(&cyw43_state, CYW43_ITF_AP, mac_address);
     struct netif *myNetif = netif_default;
     ip_addr_t ipaddr = myNetif->ip_addr;
+    struct mallinfo meminfo;
+    meminfo = mallinfo();
 
     snprintf(sbuf, sz,
     "{\"Version\": \"%s\","
@@ -55,8 +66,9 @@ uint get_status_json(char *sbuf, uint sz) {
     "\"UptimeSec\": %u,"
     "\"RSSI\": %d,"
     "\"SSID\": \"%s\","
-    "\"IPAddr\": \"%s\","
-    "\"MAC\": \"%02X:%02X:%02X:%02X:%02X:%02X\"}",
+    "\"IP\": \"%s\","
+    "\"mac\": \"%02X:%02X:%02X:%02X:%02X:%02X\","
+     "\"MemFree\": %d}",
       BUILD_VERSION,
       read_onboard_temperature(),
       to_ms_since_boot(get_absolute_time())/1000,
@@ -64,7 +76,8 @@ uint get_status_json(char *sbuf, uint sz) {
       get_settings()->wifi_ssid,
       ip4addr_ntoa(&ipaddr),
       mac_address[0], mac_address[1], mac_address[2],
-      mac_address[3], mac_address[4], mac_address[5]);
+      mac_address[3], mac_address[4], mac_address[5],
+      meminfo.fordblks);
     return strlen(sbuf);
 }
 

@@ -31,7 +31,7 @@ set(PICO_USB_DEFAULT_CRITICAL_SECTION_TYPE spinlock) # Use "poll" architecture
 project(tank_level_monitor C CXX ASM)
 set(PICO_BOARD pico_w)
 set(PROGRAM_NAME tank_level_monitor)
-set(BUILD_VERSION 0.1.5)
+set(BUILD_VERSION 0.2.0)
 
 # Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
@@ -70,6 +70,7 @@ target_sources(${PROGRAM_NAME} PRIVATE
     button.cpp
     settings.c
     wifi.cpp
+    ADCLogger.cpp
     httpserver/httpserver.c
     dhcpserver/dhcpserver.c
 )

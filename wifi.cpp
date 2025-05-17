@@ -94,17 +94,19 @@ Mode WifiConn::getMode() {
 
 bool WifiConn::isConnected() {
     int status;
+    // If the link status is negative it indicates an error
+    // The wifi link status for the interface CYW43_ITF_AP is always CYW43_LINK_DOWN
     if (mode == WIFI_AP) {
         status = cyw43_wifi_link_status(&cyw43_state, CYW43_ITF_AP);
     } else {
         status = cyw43_wifi_link_status(&cyw43_state, CYW43_ITF_STA);
     }
 
-    if (status == CYW43_LINK_JOIN) {
+    if (status > 0) {
         // Connected to wifi
         return true;
     } else {
-        DEBUG_printf("WiFi Link Status: 0x%X\n",status);
+        DEBUG_printf("WiFi Link Status: %d\n",status);
         return false;
     }
 }

@@ -7,40 +7,122 @@
     <link rel="stylesheet" href="styles.css" />
     <script src="raphael.min.js"></script>
     <script src="justgage.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body>
     <h1>Tank Monitor</h1>
     <div id="gauge" style="width: 400px; height: 320px"></div>
+    <hr />
+    <div>
+      <canvas id="datalog"></canvas>
+    </div>
+
     <script>
-      var g1 = new JustGage({
-        id: "gauge",
-        value: 99,
-        min: 0,
-        max: 100,
-        title: "Level",
-        label: "% Full",
-        levelColors: ["#fc031c", "#bafc03", "#03fcfc"],
-        counter: true,
-      });
+      window.onload = function () {
+        // ensure all resources are loaded before getting data
+        var gage1 = new JustGage({
+          id: "gauge",
+          value: 99,
+          min: 0,
+          max: 100,
+          title: "Current Level",
+          label: "% Full",
+          levelColors: ["#fc031c", "#bafc03", "#03fcfc"],
+          counter: true,
+        });
 
-      setInterval(gTimer, 2000);
+        const ctx = document.getElementById("datalog");
+        const chart1 = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: [],
+            datasets: [
+              {
+                label: "ADC values",
+                data: [],
+                fill: false,
+                borderColor: "rgb(75, 192, 192)",
+                tension: 0.1,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            scales: {
+              x: {
+                title: {
+                  display: true,
+                  text: "",
+                  font: {
+                    size: 14,
+                    weight: "bold",
+                  },
+                  color: "#333", // optional
+                },
+              },
+              y: { beginAtZero: true },
+            },
+          },
+        });
 
-      function gTimer() {
-        fetch("/get_sensor.shtml")
-          .then(function (response) {
-            // The API call was successful!
-            return response.json();
-          })
-          .then(function (data) {
-            // This is the JSON from our response
-            console.log(data);
-            g1.refresh((data.ADC / 4096) * 100);
-          })
-          .catch(function (err) {
-            // There was an error
-            console.warn("Fetch error:", err);
-          });
-      }
+        function formatMinutes(totalMinutes) {
+          const days = Math.floor(totalMinutes / (24 * 60));
+          const hours = Math.floor((totalMinutes % (24 * 60)) / 60);
+          const minutes = totalMinutes % 60;
+
+          const daysStr = days ? days + " Days " : "";
+          const hoursStr = hours ? hours + " Hours " : "";
+          const minutesStr = minutes ? minutes + " Minutes" : "";
+
+          return daysStr + hoursStr + minutesStr;
+        }
+
+        function gTimer() {
+          fetch("/get_sensor.shtml")
+            .then(function (response) {
+              return response.json();
+            })
+            .then(function (data) {
+              gage1.refresh((data.ADC / 4096) * 100);
+            })
+            .catch(function (err) {
+              console.warn("get_sensor error:", err);
+            });
+        }
+        setInterval(gTimer, 2000);
+
+        function cTimer() {
+          fetch("/get_data.shtml")
+            .then(function (response) {
+              return response.json();
+            })
+            .then(function (data) {
+              const mSecSinceStart =
+                (data.DataInt * data.Values.length * 60 + data.TimeToNext) *
+                1000;
+              if (data.TimeToNext == 0) return;
+              const mSecInterval = data.DataInt * 60000;
+              timeStamp = new Date(Date.now() - mSecSinceStart);
+
+              const labels = data.Values.map((_, index) => {
+                timeStamp.setTime(timeStamp.getTime() + mSecInterval);
+                return timeStamp.toLocaleTimeString();
+              });
+              chart1.data.labels = labels;
+              chart1.data.datasets[0].data = data.Values;
+              chart1.options.scales.x.title.text =
+                "Time Period: " +
+                formatMinutes(data.DataInt * data.Values.length);
+
+              chart1.update();
+              setTimeout(cTimer, data.TimeToNext * 1000);
+            })
+            .catch(function (err) {
+              console.warn("get_data error:", err);
+            });
+        }
+        cTimer();
+      };
     </script>
     <hr />
     <p>

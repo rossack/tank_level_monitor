@@ -21,6 +21,7 @@ static char post_data[MAX_POST_BUFFER_SIZE];
 static int post_data_len;
 
 extern uint get_wifi_json(char *sbuf, uint sz);
+extern uint get_data_json(char *sbuf, uint sz);
 
 void process_key_value(char *key, char *value) {
 
@@ -29,6 +30,8 @@ void process_key_value(char *key, char *value) {
     set_wifi_ssid(value);
   } else if (strcmp(key, "pwd") == 0) {
     set_wifi_pwd(value);
+  } else if (strcmp(key, "dataLogInt") == 0) {
+    set_data_lint(atoi(value));
   } else if (strcmp(key, "mqHost") == 0) {
     set_mqtt_host(value);
   } else if (strcmp(key, "mqPort") == 0) {
@@ -192,17 +195,26 @@ static const tCGI cgi_handlers[] = {
 
 // SSI tags - tag length limited to 8 bytes by default
 const char * ssi_tags[] = {"config",
+                          "data",
                           "sensor",
                           "status",
                           "mqtt",
                           "wifi",
                           "reset"};
 
+
+/*
+#define SSI_LARGE_DATA_SIZE 1024
+static char ssi_large_data_buffer[SSI_LARGE_DATA_SIZE];
+static u16_t ssi_large_data_size = 0;
+static u16_t ssi_large_data_index = 0;
+*/
 u16_t ssi_handler(int iIndex, char *pcInsert, int iInsertLen) {
+
   // The default maximum size of the inserted string is 192 characters
-  // The config JSON object is bigger so we increase
-  // LWIP_HTTPD_MAX_TAG_INSERT_LEN in lwiopts.h to 300
-  // TBD: Change to LWIP_HTTPD_SSI_MULTIPART
+  // The config and data JSON objects are bigger so increase
+  // LWIP_HTTPD_MAX_TAG_INSERT_LEN in lwiopts.h to 1024
+  //
   size_t inserted;
   switch (iIndex) {
   case 0: // config
@@ -210,27 +222,33 @@ u16_t ssi_handler(int iIndex, char *pcInsert, int iInsertLen) {
       inserted = get_config_json(pcInsert, iInsertLen);
     }
     break;
-  case 1: // sensor
+  case 1: // data
+    {
+      //ssi_large_data_size = get_data_json(ssi_large_data_buffer, sizeof(ssi_large_data_buffer));
+      inserted = get_data_json(pcInsert, iInsertLen);
+    }
+    break;
+  case 2: // sensor
     {
       inserted = get_sensor_json(pcInsert, iInsertLen);
     }
     break;
-  case 2: // status
+  case 3: // status
     {
       inserted = get_status_json(pcInsert, iInsertLen);
     }
     break;
-  case 3: // mqtt
+  case 4: // mqtt
     {
       inserted = get_mqtt_json(pcInsert, iInsertLen);
     }
     break;
-    case 4: // wifi scan
+    case 5: // wifi scan
     {
       inserted = get_wifi_json(pcInsert, iInsertLen);
     }
     break;
-    case 5: // do a factory reset
+    case 6: // do a factory reset
     {
       char frStr[]  = "{\"Reset\" : \"OK\"}";
       memcpy(pcInsert,frStr, strlen(frStr));
@@ -249,7 +267,7 @@ u16_t ssi_handler(int iIndex, char *pcInsert, int iInsertLen) {
 void http_server_init() {
 
     httpd_init();
-    http_set_ssi_handler(ssi_handler, ssi_tags, 6); // LWIP_ARRAYSIZE(ssi_tags)
+    http_set_ssi_handler(ssi_handler, ssi_tags, 7); // LWIP_ARRAYSIZE(ssi_tags)
     http_set_cgi_handlers(cgi_handlers, 1);  // specify number of handlers
 }
 

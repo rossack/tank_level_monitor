@@ -56,6 +56,12 @@ bool set_wifi_pwd(char * val) {
     return true;
 }
 
+void set_data_lint(uint val) {
+    // TBD Range check
+    settings->data_lint = val;
+    settings_changed = true;
+}
+
 bool set_mqtt_host(char * val) {
     if (strlen(val)> sizeof(settings->mqtt_host)) return false;
     strncpy(settings->mqtt_host, val, sizeof(settings->mqtt_host));
@@ -115,11 +121,9 @@ bool set_mqtt_config_topic(char * val) {
 }
 
 
-
 SETTINGS_T * get_settings(){
     return settings;
 }
-
 
 
 uint16_t calculate_checksum(const uint8_t *data, size_t length) {

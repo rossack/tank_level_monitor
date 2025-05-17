@@ -16,20 +16,21 @@
 #define MEM_LIBC_MALLOC             0
 #endif
 #define MEM_ALIGNMENT               4
-#define MEM_SIZE                    8000
+#define MEM_SIZE                    16384
 #define MEMP_NUM_TCP_SEG            32
 #define MEMP_NUM_ARP_QUEUE          10
 //#define MEMP_NUM_SYS_TIMEOUT        10
 #define MEMP_NUM_SYS_TIMEOUT   (LWIP_NUM_SYS_TIMEOUT_INTERNAL + 2)   // For MQTT Keep Alive
-#define PBUF_POOL_SIZE              24
+#define PBUF_POOL_SIZE              16
+#define PBUF_POOL_BUFSIZE           512
 #define LWIP_ARP                    1
 #define LWIP_ETHERNET               1
 #define LWIP_ICMP                   1
 #define LWIP_RAW                    1
-#define TCP_WND                     (8 * TCP_MSS)
 #define TCP_MSS                     1460
+#define TCP_WND                     (4 * TCP_MSS)
 #define TCP_SND_BUF                 (8 * TCP_MSS)
-#define TCP_SND_QUEUELEN            ((4 * (TCP_SND_BUF) + (TCP_MSS - 1)) / (TCP_MSS))
+#define TCP_SND_QUEUELEN            (2 * TCP_SND_BUF / TCP_MSS)
 #define LWIP_NETIF_STATUS_CALLBACK  1
 #define LWIP_NETIF_LINK_CALLBACK    1
 #define LWIP_NETIF_HOSTNAME         1
@@ -51,7 +52,7 @@
 #define LWIP_DHCP_DOES_ACD_CHECK    0
 
 #define MEMP_NUM_TCP_PCB 10
-#define TCP_MSL 5000  
+#define TCP_MSL 5000
 
 #ifndef NDEBUG
 #define LWIP_DEBUG                  1
@@ -71,7 +72,7 @@
 #define IP_REASS_DEBUG              LWIP_DBG_OFF
 #define RAW_DEBUG                   LWIP_DBG_OFF
 #define MEM_DEBUG                   LWIP_DBG_OFF
-#define MEMP_DEBUG                  LWIP_DBG_OFF 
+#define MEMP_DEBUG                  LWIP_DBG_OFF
 #define SYS_DEBUG                   LWIP_DBG_OFF
 #define TCP_DEBUG                   LWIP_DBG_OFF
 #define TCP_INPUT_DEBUG             LWIP_DBG_OFF
@@ -91,7 +92,9 @@
 // This section enables HTTPD server with SSI, CGI
 #define LWIP_HTTPD 1
 #define LWIP_HTTPD_SSI 1
-#define LWIP_HTTPD_MAX_TAG_INSERT_LEN 300
+
+#define LWIP_HTTPD_MAX_TAG_INSERT_LEN 1024
+#define LWIP_HTTPD_FILE_READ_BUFFER_SIZE 1024
 #define LWIP_HTTPD_SSI_INCLUDE_TAG 0
 #define LWIP_HTTPD_CGI 1
 #define LWIP_HTTPD_SUPPORT_POST 1

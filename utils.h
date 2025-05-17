@@ -13,7 +13,7 @@ extern "C" {
 uint get_config_json(char *sbuf, uint sz);
 uint get_sensor_json(char *sbuf, uint sz);
 uint get_status_json(char *sbuf, uint sz);
-float read_onboard_temperature(); 
+float read_onboard_temperature();
 void flashLED(int n);
 void onLED();
 void offLED();

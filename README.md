@@ -2,11 +2,11 @@
 
 ## Overview
 
-The **Pico W Tank Monitor** is a smart IoT device that monitors liquid levels in a tank using a **4-20mA pressure transducer** and an **analog-to-digital converter (ADC)**. The software runs on a **Raspberry Pi Pico W**, which connects to a network via Wi-Fi and can publish sensor data via **MQTT**.
+The **Pico W Tank Monitor** is an IoT device to monitor liquid levels using a **4-20mA pressure transducer** and an **analog-to-digital converter (ADC)**. The software runs on a **Raspberry Pi Pico W**, which connects to a network via Wi-Fi and can publish sensor data via **MQTT**.
 
 ## Features
 
-- Reads liquid level using a **4-20mA pressure transducer**.
+- Uses industry standard **4-20mA pressure transducer**.
 - Converts the analog signal to digital using 0-3.3v input **ADC0 of the Pico**.
 - Connects to **Wi-Fi** and operates as a client or **Wireless Access Point (AP)** for setup.
 - Publishes data to an **MQTT broker** at configurable intervals.
@@ -14,6 +14,12 @@ The **Pico W Tank Monitor** is a smart IoT device that monitors liquid levels in
 - Reset button via GPIO13 will erase flash and go back to factory setup.
 
 ## Build Versions
+
+### v0.2.0 - Bug/Feature Release
+
+- Added data log to record the last 100 readings with configurable time interval (minutes). Note data is not saved (held in RAM only)
+- Added a chart on main page to display the data being logged
+- Added Window.onload() to main page to wait before calling for data while.
 
 ### v0.1.5 - Bug/Feature Release
 
@@ -47,9 +53,11 @@ The **Pico W Tank Monitor** is a smart IoT device that monitors liquid levels in
 
 ## Todo List
 
-- BUILD_VERSION string is broken
+- Use Home Assistant MQTT Discovery Message
+- Save Debug/Error messages so they can be queried via JSON api
+- Have a fallback SSID for WiFi connections
 - Use PicoW unique ID for AP mode SSID
-- The get_xxx api is limited by LWIP_HTTPD_MAX_TAG_INSERT_LEN (should use LWIP_HTTPD_SSI_MULTIPART)
+- The get_xxx api is limited by LWIP_HTTPD_MAX_TAG_INSERT_LEN (use LWIP_HTTPD_SSI_MULTIPART)
 - Do a build using interrupt driven LWIP
 - Upgrade to latest Pico SDK (Current: 1.5.1 - instability(?) issues with 2.0+)
 - Use checksum to verify Flash memory

@@ -17,6 +17,8 @@
 #include "utils.h"
 #include "wifi.h"
 #include "debug.h"
+#include "ADCLogger.h"
+
 
 #define MPB_PIN 13 // GPIO pin to Momentary Push Button
 #define ADC_PIN 26 // ADC0 GPIO pin
@@ -24,10 +26,15 @@
 volatile bool bailout = false;
 MPButton mpButton; // Momentary Push button
 WifiConn wifi; // WiFi connection
+ADCLogger ADCLog; // Buffer to store ADC readings
 
 
 extern "C" uint get_wifi_json(char *sbuf, uint sz) {
     return wifi.scan(sbuf, sz);
+}
+
+extern "C" uint get_data_json(char *sbuf, uint sz) {
+    return (ADCLog.toJSON(sbuf,sz));
 }
 
 
@@ -74,6 +81,7 @@ int main() {
     mpButton.eventHandler(&buttonEvent);
     gpio_set_irq_enabled_with_callback(MPB_PIN, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, &extInterrupt);
 
+
     // Initialise wifi and depending on settings start STA or AP modes
     wifi.init(CYW43_COUNTRY_AUSTRALIA);
 
@@ -92,6 +100,9 @@ int main() {
 
     // Start MQTT if needed
     int publish_timer = get_settings()->mqtt_pint;
+
+    ADCLog.setSampleInterval(get_settings()->data_lint); // minutes
+
     if (publish_timer > 0) {
         mqtt_client_init(); // only start mqtt if the pub interval non zero
     }
@@ -100,6 +111,7 @@ int main() {
     absolute_time_t set_time = get_absolute_time();
     if (wifi.getMode() == WIFI_STA) watchdog_enable(60000, true);
     bool status_led = false;
+
     //
     // Idle loop
     //
@@ -109,12 +121,9 @@ int main() {
         watchdog_update();
 
         if (to_ms_since_boot(get_absolute_time()) - to_ms_since_boot(set_time) > 1000) {
-            if (publish_timer > 0) {
-                if (publish_timer == 1) {
-                    publish_timer = get_settings()->mqtt_pint;
-                    mqtt_update();
-                } else publish_timer -=1;
-            }
+            //
+            // Do timer related tasks
+            //
             if (wifi.getMode() == WIFI_AP) flashLED(2); // flash LED in AP mode
             else {
                 if (status_led = !status_led) onLED(); else offLED(); // toggle LED in WIFI_STA mode
@@ -123,15 +132,29 @@ int main() {
                     watchdog_reboot(0, 0, 200); // start over
                 }
             }
-            set_time = get_absolute_time();
-        }
+            if (publish_timer > 0) {
+                if (publish_timer == 1) {
+                    mqtt_update();
+                    publish_timer = get_settings()->mqtt_pint;
+                } else publish_timer -=1;
+            }
 
+            if (ADCLog.timeToNext() > 0) {
+                if (ADCLog.timeToNext() == 1) {
+                    adc_select_input(0); // Select ADC input 0 (GPIO26)
+                    ADCLog.writeSample(adc_read());
+                    ADCLog.resetTimeToNext();
+                } else ADCLog.decTimeToNext();
+            }
+            set_time = get_absolute_time();
+
+        }
         if (bailout) {
             // User wants to reset with a new configuration.
             // Make sure the idle loop only sees a bailout once.
             bailout = false;
             reset_settings();
         }
-
+        sleep_ms(10); // Yield CPU to lwIP and background processes
     }
 }

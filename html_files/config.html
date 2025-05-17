@@ -35,7 +35,18 @@
           </table>
         </div>
         <hr />
-
+        <h2>Data Log</h2>
+        <div class="container">
+          <label for="dataLogInt">Data Log Interval (min):</label>
+          <input
+            type="number"
+            min="0"
+            max="1440"
+            id="dataLogInt"
+            name="dataLogInt"
+          />
+        </div>
+        <hr />
         <!-- MQTT Broker Configuration -->
         <h2>MQTT Broker</h2>
         <label>
@@ -54,7 +65,13 @@
             <input type="password" maxlength="16" id="mqPwd" name="mqPwd" />
             <button type="button" id="toggle-mqPwd">Show</button>
             <label for="mqPubInt">Publish Interval (sec):</label>
-            <input type="number" id="mqPubInt" name="mqPubInt" />
+            <input
+              type="number"
+              min="0"
+              max="3600"
+              id="mqPubInt"
+              name="mqPubInt"
+            />
 
             <label for="mqStateTopic">State Topic:</label>
             <input
@@ -113,6 +130,7 @@
           // Update form fields
           document.getElementById("ssid").value = data.ssid;
           document.getElementById("pwd").value = data.pwd;
+          document.getElementById("dataLogInt").value = data.logInt;
           document.getElementById("mqUser").value = data.mqUser;
           document.getElementById("mqPwd").value = data.mqPwd;
           document.getElementById("mqStateTopic").value = data.mqStateTopic;
